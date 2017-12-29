@@ -1,0 +1,17 @@
+{
+  "name": "cloudfront-google-auth",
+  "version": "1.0.0",
+  "description": "A Lambda@Edge function to authenticate users by Google login.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Widen Enterprises",
+  "repository": "github:widen/cloudfront-google-auth",
+  "license": "ISC",
+  "dependencies": {
+    "cookie": "^0.3.1",
+    "jsonwebtoken": "^8.1.0",
+    "jwk-to-pem": "^1.2.6"
+  }
+}
