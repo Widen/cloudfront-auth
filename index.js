@@ -105,36 +105,51 @@ function processRequest(event, context, callback) {
     }
     // Verify the JWT, the payload email, and that the email ends with configured hosted domain
     jwt.verify(cookie.parse(headers["cookie"][0].value).token, pem, { algorithms: ['RS256'] }, function(err, decoded) {
-      if (!err && token.payload.email_verified === true && token.payload.email.endsWith(config.HOSTED_DOMAIN)) {
+      if (err) {
+        switch (err.name) {
+          case 'TokenExpiredError':
+            redirectToGoogleLogin(request, callback)
+            break;
+          case 'JsonWebTokenError':
+            unauthorized(err.message, callback);
+            break;
+          default:
+            unauthorized('Unauthorized. User ' + token.payload.email + ' is not permitted.', callback);
+        }
+      } else if (token.payload.email_verified === true && token.payload.email.endsWith(config.HOSTED_DOMAIN)) {
         callback(null, request);
       } else {
         unauthorized('Unauthorized. User ' + token.payload.email + ' is not permitted.', callback);
       }
     });
   } else {
-    // Form Google's OAuth 2.0 Server URL
-    var querystring = qs.stringify({
-      "client_id": config.CLIENT_ID,
-      "redirect_uri": "https://" + headers.host[0].value + config.CALLBACK_PATH,
-      "scope": 'openid email',
-      "hd": config.HOSTED_DOMAIN,
-      "state": request.uri,
-      "response_type": "code"
-    });
-
-    const response = {
-      status: '302',
-      statusDescription: 'Found',
-      body: 'Authenticating with Google',
-      headers: {
-          location : [{
-              key: 'Location',
-              value: discoveryDocument.authorization_endpoint + "?" + querystring
-           }],
-      },
-    };
-    callback(null, response);
+    redirectToGoogleLogin(request, callback);
   }
+}
+
+function redirectToGoogleLogin(request, callback) {
+  // Form Google's OAuth 2.0 Server URL
+  var querystring = qs.stringify({
+    "client_id": config.CLIENT_ID,
+    "redirect_uri": "https://" + request.headers.host[0].value + config.CALLBACK_PATH,
+    "scope": 'openid email',
+    "hd": config.HOSTED_DOMAIN,
+    "state": request.uri,
+    "response_type": "code"
+  });
+
+  const response = {
+    status: '302',
+    statusDescription: 'Found',
+    body: 'Authenticating with Google',
+    headers: {
+        location : [{
+            key: 'Location',
+            value: discoveryDocument.authorization_endpoint + "?" + querystring
+         }],
+    },
+  };
+  callback(null, response);
 }
 
 function unauthorized(body, callback) {
