@@ -4,7 +4,7 @@ Google authentication for [CloudFront](https://aws.amazon.com/cloudfront/) using
 Developed as per [Google's OpenID Connect](https://developers.google.com/identity/protocols/OpenIDConnect)
 
 # Description
-`cloudfront-google-auth` follows the OpenID Connect spec as described in [Google's documentation](https://developers.google.com/identity/protocols/OpenIDConnect). Upon successful authentication, a cookie (named `token`) with the value of the [OpenId JWT response](https://developers.google.com/identity/protocols/OpenIDConnect#obtainuserinfo) is set and the user redirected back to the orginally requested path. This JWT cookie is checked for validity (signature, expiration date and matching hosted domain) upon each request and `cloudfront-google-auth` will redirect the user to Google login when necessary.
+`cloudfront-google-auth` follows the OpenID Connect spec as described in [Google's documentation](https://developers.google.com/identity/protocols/OpenIDConnect). Upon successful authentication, a cookie (named `TOKEN`) with the value of the [OpenId JWT response](https://developers.google.com/identity/protocols/OpenIDConnect#obtainuserinfo) is set and the user redirected back to the orginally requested path. This JWT cookie is checked for validity (signature, expiration date and matching hosted domain) upon each request and `cloudfront-google-auth` will redirect the user to Google login when necessary.
 
 # Usage
 1. If your CloudFront distribution is pointed at an S3 bucket, [configure origin access identity](http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html#private-content-creating-oai-console) so S3 objects can be stored with private permissions

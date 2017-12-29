@@ -73,7 +73,7 @@ function processRequest(event, context, callback) {
                 }],
                 'set-cookie' : [{
                   key: 'Set-Cookie',
-                  value : cookie.serialize('token', parsedData.id_token)
+                  value : cookie.serialize('TOKEN', parsedData.id_token)
                 }],
               },
             };
@@ -93,7 +93,7 @@ function processRequest(event, context, callback) {
     req.write(postData);
     req.end();
   } else if ("cookie" in headers
-              && "token" in cookie.parse(headers["cookie"][0].value)) {
+              && "TOKEN" in cookie.parse(headers["cookie"][0].value)) {
     var token = jwt.decode(cookie.parse(headers["cookie"][0].value).token, {complete: true});
 
     // Search for correct JWK from discovery document and create PEM
@@ -146,6 +146,10 @@ function redirectToGoogleLogin(request, callback) {
         location : [{
             key: 'Location',
             value: discoveryDocument.authorization_endpoint + "?" + querystring
+         }],
+         'set-cookie' : [{
+           key: 'Set-Cookie',
+           value : cookie.serialize('token', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
          }],
     },
   };
