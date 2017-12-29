@@ -24,7 +24,7 @@ function processRequest(event, context, callback) {
   const headers = request.headers;
   const queryDict = qs.parse(request.querystring);
 
-  if (request.uri.startsWith('/_callback')) {
+  if (request.uri.startsWith(config.CALLBACK_PATH)) {
     // Verify code exists
     if (!queryDict.code) {
       unauthorized("No code found.", callback);
@@ -35,7 +35,7 @@ function processRequest(event, context, callback) {
       'code': queryDict.code,
       'client_id': config.CLIENT_ID,
       'client_secret': config.CLIENT_SECRET,
-      'redirect_uri': config.REDIRECT_URI,
+      'redirect_uri': "https://" + headers.host[0].value + config.CALLBACK_PATH,
       'grant_type': 'authorization_code'
     });
 
@@ -115,7 +115,7 @@ function processRequest(event, context, callback) {
     // Form Google's OAuth 2.0 Server URL
     var querystring = qs.stringify({
       "client_id": config.CLIENT_ID,
-      "redirect_uri": config.REDIRECT_URI,
+      "redirect_uri": "https://" + headers.host[0].value + config.CALLBACK_PATH,
       "scope": 'openid email',
       "hd": config.HOSTED_DOMAIN,
       "state": request.uri,

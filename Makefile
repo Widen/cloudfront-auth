@@ -7,14 +7,14 @@ config.js:
 	echo "const CLIENT_ID = '$$CLIENT_ID';" >> $@
 	@read -p "Enter client secret: " CLIENT_SECRET; \
 	echo "const CLIENT_SECRET = '$$CLIENT_SECRET';" >> $@
-	@read -p "Enter redirect URI: " REDIRECT_URI; \
-	echo "const REDIRECT_URI = '$$REDIRECT_URI';" >> $@
+	@read -p "Enter callback path: " CALLBACK_PATH; \
+	echo "const CALLBACK_PATH = '$$CALLBACK_PATH';" >> $@
 	@read -p "Enter hosted domain: " HOSTED_DOMAIN; \
 	echo "const HOSTED_DOMAIN = '$$HOSTED_DOMAIN';" >> $@
 	echo "" >> $@
 	echo "exports.CLIENT_ID = CLIENT_ID;" >> $@
 	echo "exports.CLIENT_SECRET = CLIENT_SECRET;" >> $@
-	echo "exports.REDIRECT_URI = REDIRECT_URI;" >> $@
+	echo "exports.CALLBACK_PATH = CALLBACK_PATH;" >> $@
 	echo "exports.HOSTED_DOMAIN = HOSTED_DOMAIN;" >> $@
 index.js:
 	$(error No $@ found.)
