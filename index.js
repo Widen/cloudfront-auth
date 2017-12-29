@@ -69,7 +69,7 @@ function processRequest(event, context, callback) {
               headers: {
                 location : [{
                   key: 'Location',
-                  value: "https://bka.yden.us" + queryDict.state
+                  value: queryDict.state
                 }],
                 'set-cookie' : [{
                   key: 'Set-Cookie',
@@ -116,7 +116,7 @@ function processRequest(event, context, callback) {
       "redirect_uri": config.REDIRECT_URI,
       "scope": 'openid email',
       "hd": config.HOSTED_DOMAIN,
-      "state": headers.host.find("Host") + request.uri,
+      "state": request.uri,
       "response_type": "code"
     });
 
