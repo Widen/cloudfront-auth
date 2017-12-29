@@ -3,8 +3,11 @@ Google authentication for [CloudFront](https://aws.amazon.com/cloudfront/) using
 
 Developed as per [Google's OpenID Connect](https://developers.google.com/identity/protocols/OpenIDConnect)
 
+# Description
+```cloudfront-google-auth``` follows OpenID Connect standards as described on [Google's site](https://developers.google.com/identity/protocols/OpenIDConnect).  Upon redirect to ```/_callback```, a token is set containing the *JWT* for future login while valid (called ```token```).  After the cookie is set, the user is redirected to the original path and the *JWT* is verified before permitting access.  Subsequent requests will verify the JWT in the *token* cookie.
+
 # Usage
-1. If CloudFront is pointed at an S3 bucket, configure access identity so S3 objects can be stored with private permissions
+1. If CloudFront is pointed at an S3 bucket, [configure access identity](http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html#private-content-creating-oai-console) so S3 objects can be stored with private permissions
 1. Clone or download this repo
 1. Lambda@Edge does not support environment variables, so a config file is needed.  To create the config file and zip package, run ```make``` within the directory and you will be prompted to enter your [Google OpenID Connect](https://developers.google.com/identity/protocols/OpenIDConnect#appsetup) [client id](https://developers.google.com/identity/protocols/OpenIDConnect#getcredentials), [client secret](https://developers.google.com/identity/protocols/OpenIDConnect#getcredentials), [redirect uri](https://developers.google.com/identity/protocols/OpenIDConnect#setredirecturi) ending in ```/_callback```, and hosted domain. This will result in a zip file named ```cloudfront-google-auth.zip```.
 1. Upload the resulting zip to Lambda (contains index.js, package.json, package-lock.json, config.js, and the node_modules folder/contents)

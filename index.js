@@ -96,12 +96,14 @@ function processRequest(event, context, callback) {
               && "token" in cookie.parse(headers["cookie"][0].value)) {
     var token = jwt.decode(cookie.parse(headers["cookie"][0].value).token, {complete: true});
 
+    // Search for correct JWK from discovery document and create PEM
     var pem = "";
     for (var i = 0; i < jwks.keys.length; i++) {
       if (token.header.kid === jwks.keys[i].kid) {
         pem = jwkToPem(jwks.keys[i]);
       }
     }
+    // Verify the JWT, the payload email, and that the email ends with configured hosted domain
     jwt.verify(cookie.parse(headers["cookie"][0].value).token, pem, { algorithms: ['RS256'] }, function(err, decoded) {
       if (!err && token.payload.email_verified === true && token.payload.email.endsWith(config.HOSTED_DOMAIN)) {
         callback(null, request);
