@@ -1,13 +1,13 @@
 Google Apps (G Suite) authentication for [CloudFront](https://aws.amazon.com/cloudfront/) using [Lambda@Edge](http://docs.aws.amazon.com/lambda/latest/dg/lambda-edge.html). Developed following [Google's OpenID Connect](https://developers.google.com/identity/protocols/OpenIDConnect) documentation. The primary use case for `cloudfront-google-auth` is to serve private S3 content over HTTPS without running a proxy server to authenticate requests.
 
 ## Description
-`cloudfront-google-auth` follows the OpenID Connect spec as described in [Google's documentation](https://developers.google.com/identity/protocols/OpenIDConnect). Upon successful authentication, a cookie (named `TOKEN`) with the value of the [OpenId JWT response](https://developers.google.com/identity/protocols/OpenIDConnect#obtainuserinfo) is set and the user redirected back to the orginally requested path. This JWT cookie is checked for validity (signature, expiration date and matching hosted domain) upon each request and `cloudfront-google-auth` will redirect the user to Google login when necessary.
+`cloudfront-google-auth` follows the OpenID Connect spec as described in [Google's documentation](https://developers.google.com/identity/protocols/OpenIDConnect). Upon successful authentication and [OpenId JWT response](https://developers.google.com/identity/protocols/OpenIDConnect#obtainuserinfo) verification, a cookie ( named `TOKEN`) with the value of a newly created and signed JWT is set and the user redirected back to the originally requested path. This JWT cookie is checked for validity (signature, expiration date, audience and matching hosted domain) upon each request and `cloudfront-google-auth` will redirect the user to Google login when necessary.
 
 ## Usage
 1. If your CloudFront distribution is pointed at an S3 bucket, [configure origin access identity](http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html#private-content-creating-oai-console) so S3 objects can be stored with private permissions
 1. Clone or download this repo
 1. Create an OAuth 2.0 client using the [Google Developers Console](https://console.developers.google.com/apis/credentials).
-1. Lambda@Edge does not support environment variables, so a config file is necessary to be included in the Lambda upload ZIP. Execute `make` and enter your [Google OAuth credentials](https://developers.google.com/identity/protocols/OpenIDConnect#getcredentials): client id, client secret, callback path, and hosted domain when prompted.
+1. Lambda@Edge does not support environment variables, so a config file is necessary to be included in the Lambda upload ZIP. Execute `make` and enter your [Google OAuth credentials](https://developers.google.com/identity/protocols/OpenIDConnect#getcredentials): client id, client secret, callback path, and hosted domain along with the token age (in seconds) when prompted.  If RSA public/private keys do not exist under the names id_rsa/id_rsa.pub respectively, new ones will automatically be generated.
 1. Upload the resulting `cloudfront-google-auth.zip` to Lambda (ZIP contains index.js, package.json, package-lock.json, config.js, and the node_modules directory.)
 1. Configure CloudFront to use the Lambda function upon **viewer request**:
   1. Edit CloudFront distribution behavior![alt text](https://lh3.googleusercontent.com/T4b26lGh3yu4SSxXAG3Vb63iuWxTXkqgFTiXNp5i-NCGQ6AgH_Lal5CYse6gZJOpjSK8xKi9kuF8niPKbqjbrTFYDB7n6ZNv-mANWytL_zatFwDamFQZ_1RnDnEAGkXfrKONRNfJh6w8qjLHKuCk1JWnqsIWYnIr44J2j6wFKceasggPxnh8IfhC869-Pz3GRC6AvURWLOVoQWZI5tp7NQ6U4NGZ-dI-bEjOSTqx96PEnlbIY4r-Js76SgbKI_94aow5eMXmhbGFcsheUIZ5jRXJ6NT9Z3SpPEw0tvJwqDEs5UyM8xva_Ghb33EsV3bfDzZbaKoCXk3diKnBCV5BTpfx8szaiOxiqHZY8wfFEZfkeZi-sZECSAECcnXcIWVEGId52vjtQmNi0krfwcAUSHzkEMB3E3jHMH2fd8q3Pp8YO5w1A2wgAE_SDVuT6JRS-i1vFoRx-OkfSpNI4kdY7Uh4MxvP6fR_hNVPCxilM9y0D_S8ln7MWAPE_7V3RkV214SObk_PoU4dW3u67PD1BUfD8kR96Kf6UV8s5IhM61ks9u1PvbFj822y51CWAhTRe02tcwPdB9Km0jbYXYgzkPFkzPXCYCKeTLCg0m2m4HAUS5SL7P3ftYN98FyOdYYrbtmYiJtwatH6gjwfyX6ENc2rDMa4A8Q=w1684-h586-no "Edit behavior")
@@ -19,11 +19,25 @@ const CLIENT_ID = '1234-t84f8fjwyo94.apps.googleusercontent.com';
 const CLIENT_SECRET = 'HGUjgeU_KirjcKrjk2kf';
 const CALLBACK_PATH = '/_callback';
 const HOSTED_DOMAIN = 'example.com';
+const TOKEN_AGE = 3600;
+const PRIVATE_KEY = `
+-----BEGIN RSA PRIVATE KEY-----
+kjt8hG678jhg7gh9jh89jh8G7h89J89Ko...
+-----END RSA PRIVATE KEY-----
+`;
+const PUBLIC_KEY = `
+-----BEGIN PUBLIC KEY-----
+jkg7H7gI87Oiuy6g7h8j9Jhg67h8J9K87...
+-----END PUBLIC KEY-----
+`
 
 exports.CLIENT_ID = CLIENT_ID;
 exports.CLIENT_SECRET = CLIENT_SECRET;
 exports.CALLBACK_PATH = CALLBACK_PATH;
 exports.HOSTED_DOMAIN = HOSTED_DOMAIN;
+exports.TOKEN_AGE = TOKEN_AGE;
+exports.PRIVATE_KEY = PRIVATE_KEY;
+exports.PUBLIC_KEY = PUBLIC_KEY;
 ```
 
 ## Build Requirements

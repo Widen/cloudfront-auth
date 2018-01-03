@@ -5,13 +5,14 @@ const jwt = require('jsonwebtoken');
 const cookie = require('cookie');
 const url = require('url');
 const jwkToPem = require('jwk-to-pem');
+const os = require('os');
 const config = require('./config');
 var discoveryDocument;
 var jwks;
 
 exports.handler = (event, context, callback) => {
   // Avoid unnecessary discovery document calls with container reuse
-  if (jwks == null || discoveryDocument == null) {
+  if (typeof jwks == 'undefined' || typeof discoveryDocument == 'undefined') {
     getDiscoveryDocumentData(event, context, callback);
   } else {
     processRequest(event, context, callback);
@@ -58,28 +59,61 @@ function processRequest(event, context, callback) {
       res.on('data', (chunk) => { rawData += chunk; });
       res.on('end', () => {
         const parsedData = JSON.parse(rawData);
-        const decodedData = jwt.decode(parsedData.id_token);
+        const decodedData = jwt.decode(parsedData.id_token, {complete: true});
         try {
-          if ("error" in decodedData) {
-            unauthorized("Unable to decode JWT: " + decodedData.error_description, callback);
-          } else {
-            const response = {
-              status: '302',
-              statusDescription: 'Found',
-              body: 'ID token retrieved.',
-              headers: {
-                location : [{
-                  key: 'Location',
-                  value: queryDict.state
-                }],
-                'set-cookie' : [{
-                  key: 'Set-Cookie',
-                  value : cookie.serialize('TOKEN', parsedData.id_token)
-                }],
-              },
-            };
-            callback(null, response);
+          // Search for correct JWK from discovery document and create PEM
+          var pem = "";
+          for (var i = 0; i < jwks.keys.length; i++) {
+            if (decodedData.header.kid === jwks.keys[i].kid) {
+              pem = jwkToPem(jwks.keys[i]);
+            }
           }
+          // Verify the JWT, the payload email, and that the email ends with configured hosted domain
+          jwt.verify(parsedData.id_token, pem, { algorithms: ['RS256'] }, function(err, decoded) {
+            if (err) {
+              switch (err.name) {
+                case 'TokenExpiredError':
+                  redirectToGoogleLogin(request, callback)
+                  break;
+                case 'JsonWebTokenError':
+                  unauthorized('JsonWebTokenError: ' + err.message, callback);
+                  break;
+                default:
+                  unauthorized('Unauthorized. User ' + decoded.email + ' is not permitted.', callback);
+              }
+            } else if (decoded.email_verified === true && decoded.email.endsWith(config.HOSTED_DOMAIN)) {
+              // Once verified, create new JWT for this server
+              var issuedAt = new Date().getTime();
+              var expirationTime = issuedAt + config.TOKEN_AGE;
+              const response = {
+                status: '302',
+                statusDescription: 'Found',
+                body: 'ID token retrieved.',
+                headers: {
+                  location : [{
+                    key: 'Location',
+                    value: queryDict.state
+                  }],
+                  'set-cookie' : [{
+                    key: 'Set-Cookie',
+                    value : cookie.serialize('TOKEN', jwt.sign(
+                      { },
+                      config.PRIVATE_KEY.trim(),
+                      {
+                        audience: headers.host[0].value,
+                        subject: decoded.email,
+                        expiresIn: config.TOKEN_AGE,
+                        algorithm: 'RS256'
+                      } // Options
+                    ))
+                  }],
+                },
+              };
+              callback(null, response);
+            } else {
+              unauthorized('Unauthorized. User ' + token.payload.email + ' is not permitted.', callback);
+            }
+          });
         } catch (e) {
           internalServerError(e.message, callback);
         }
@@ -95,17 +129,8 @@ function processRequest(event, context, callback) {
     req.end();
   } else if ("cookie" in headers
               && "TOKEN" in cookie.parse(headers["cookie"][0].value)) {
-    var token = jwt.decode(cookie.parse(headers["cookie"][0].value).token, {complete: true});
-
-    // Search for correct JWK from discovery document and create PEM
-    var pem = "";
-    for (var i = 0; i < jwks.keys.length; i++) {
-      if (token.header.kid === jwks.keys[i].kid) {
-        pem = jwkToPem(jwks.keys[i]);
-      }
-    }
     // Verify the JWT, the payload email, and that the email ends with configured hosted domain
-    jwt.verify(cookie.parse(headers["cookie"][0].value).token, pem, { algorithms: ['RS256'] }, function(err, decoded) {
+    jwt.verify(cookie.parse(headers["cookie"][0].value).TOKEN, config.PUBLIC_KEY.trim(), { algorithms: ['RS256'] }, function(err, decoded) {
       if (err) {
         switch (err.name) {
           case 'TokenExpiredError':
@@ -115,12 +140,12 @@ function processRequest(event, context, callback) {
             unauthorized(err.message, callback);
             break;
           default:
-            unauthorized('Unauthorized. User ' + token.payload.email + ' is not permitted.', callback);
+            unauthorized('Unauthorized. User ' + decoded.sub + ' is not permitted.', callback);
         }
-      } else if (token.payload.email_verified === true && token.payload.email.endsWith(config.HOSTED_DOMAIN)) {
+      } else if (decoded.aud === headers.host[0].value && decoded.sub.endsWith(config.HOSTED_DOMAIN)) {
         callback(null, request);
       } else {
-        unauthorized('Unauthorized. User ' + token.payload.email + ' is not permitted.', callback);
+        unauthorized('Unauthorized. User ' + decoded.sub + ' is not permitted.', callback);
       }
     });
   } else {
@@ -150,7 +175,7 @@ function redirectToGoogleLogin(request, callback) {
          }],
          'set-cookie' : [{
            key: 'Set-Cookie',
-           value : cookie.serialize('token', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
+           value : cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
          }],
     },
   };

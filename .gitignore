@@ -2,3 +2,5 @@ node_modules
 config.js
 *.DS_Store
 cloudfront-google-auth.zip
+id_rsa
+id_rsa.pub
