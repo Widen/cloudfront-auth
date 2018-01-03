@@ -18,6 +18,7 @@ exports.handler = (event, context, callback) => {
   }
 };
 
+// Main function
 function processRequest(event, context, callback) {
   // Get request, request headers, and querystring dictionary
   const request = event.Records[0].cf.request;
@@ -60,7 +61,7 @@ function processRequest(event, context, callback) {
         const decodedData = jwt.decode(parsedData.id_token);
         try {
           if ("error" in decodedData) {
-            unauthorized(decodedData.error_description, callback);
+            unauthorized("Unable to decode JWT: " + decodedData.error_description, callback);
           } else {
             const response = {
               status: '302',
@@ -156,24 +157,6 @@ function redirectToGoogleLogin(request, callback) {
   callback(null, response);
 }
 
-function unauthorized(body, callback) {
-  const response = {
-    status: '401',
-    statusDescription: 'Unauthorized',
-    body: body,
-  };
-  callback(null, response);
-}
-
-function internalServerError(body, callback) {
-  const response = {
-    status: '500',
-    statusDescription: 'Internal Server Error',
-    body: body,
-  };
-  callback(null, response);
-}
-
 function getDiscoveryDocumentData(event, context, callback) {
   // Get Discovery Document data
   const postData = "";
@@ -216,19 +199,20 @@ function getDiscoveryDocumentData(event, context, callback) {
             res.on('data', (chunk) => { rawData += chunk; });
             res.on('end', () => {
               jwks = JSON.parse(rawData);
+              // Callback to main function
               processRequest(event, context, callback);
             });
           });
 
           req.on('error', (e) => {
-            internalServerError("Unable to verify JWT.", callback);
+            internalServerError("Unable to verify JWT: " + e.message, callback);
           });
 
           // Write data to request body
           req.write(postData);
           req.end();
         } else {
-          internalServerError("Unable to verify JWT.", callback);
+          internalServerError("Unable to find JWK in discovery document.", callback);
         }
       } catch (e) {
         internalServerError("Unable to verify JWT: " + e.message, callback);
@@ -243,4 +227,22 @@ function getDiscoveryDocumentData(event, context, callback) {
   // Write data to request body
   req.write(postData);
   req.end();
+}
+
+function unauthorized(body, callback) {
+  const response = {
+    status: '401',
+    statusDescription: 'Unauthorized',
+    body: body,
+  };
+  callback(null, response);
+}
+
+function internalServerError(body, callback) {
+  const response = {
+    status: '500',
+    statusDescription: 'Internal Server Error',
+    body: body,
+  };
+  callback(null, response);
 }
