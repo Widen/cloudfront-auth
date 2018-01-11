@@ -5,8 +5,8 @@ const jwt = require('jsonwebtoken');
 const cookie = require('cookie');
 const url = require('url');
 const jwkToPem = require('jwk-to-pem');
-const os = require('os');
 const config = require('./config');
+const auth = require('./auth');
 var discoveryDocument;
 var jwks;
 
@@ -81,7 +81,9 @@ function processRequest(event, context, callback) {
                 default:
                   unauthorized('Unauthorized. User ' + decoded.email + ' is not permitted.', callback);
               }
-            } else if (decoded.email_verified === true && decoded.email.endsWith(config.HOSTED_DOMAIN)) {
+            } else if (!decoded.email.endsWith(config.HOSTED_DOMAIN)) {
+              unauthorized('Unauthorized. User ' + decoded.email + ' is not permitted.', callback);
+            } else if (decoded.email_verified === true) {
               // Once verified, create new JWT for this server
               var issuedAt = new Date().getTime();
               var expirationTime = issuedAt + config.TOKEN_AGE;
@@ -142,10 +144,8 @@ function processRequest(event, context, callback) {
           default:
             unauthorized('Unauthorized. User ' + decoded.sub + ' is not permitted.', callback);
         }
-      } else if (decoded.aud === headers.host[0].value && decoded.sub.endsWith(config.HOSTED_DOMAIN)) {
-        callback(null, request);
       } else {
-        unauthorized('Unauthorized. User ' + decoded.sub + ' is not permitted.', callback);
+        auth.isAuthorized(decoded, request, callback, unauthorized, internalServerError);
       }
     });
   } else {
