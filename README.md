@@ -7,7 +7,13 @@ Google Apps (G Suite) authentication for [CloudFront](https://aws.amazon.com/clo
 1. If your CloudFront distribution is pointed at an S3 bucket, [configure origin access identity](http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html#private-content-creating-oai-console) so S3 objects can be stored with private permissions
 1. Clone or download this repo
 1. Create an OAuth 2.0 client using the [Google Developers Console](https://console.developers.google.com/apis/credentials).
-1. Lambda@Edge does not support environment variables, so a config file is necessary to be included in the Lambda upload ZIP. Execute `make` and enter your [Google OAuth credentials](https://developers.google.com/identity/protocols/OpenIDConnect#getcredentials): client id, client secret, callback path, and hosted domain along with the token age (in seconds) when prompted.  If RSA public/private keys do not exist under the names id_rsa/id_rsa.pub respectively, new ones will automatically be generated.
+1. Lambda@Edge does not support environment variables, so a config file is necessary to be included in the Lambda upload ZIP. Execute `make` and enter your [Google OAuth credentials](https://developers.google.com/identity/protocols/OpenIDConnect#getcredentials): client id, client secret, callback path, and hosted domain along with the token age (in seconds) when prompted.  If RSA public/private keys do not exist under the names id_rsa/id_rsa.pub respectively, new ones will automatically be generated.  You can choose from three AuthZ methods:
+   1. Hosted Domain
+      1. Only check that verified email ends with hosted domain. Leave 'Enter email lookup URL' blank.
+   1. HTTP Email Lookup
+      1. Check that verified email exists in JSON array from given site. Enter email lookup URL when prompted.
+   1. Google Groups Lookup
+      1. Check that verified email exists in one of given Google Groups.  Download your service account JSON file and rename to 'google-authz.json' (example below).  Place it in the root directory and add the key 'cloudfront_authz_groups' whose value is a JSON array of groups to check.  The Makefile will detect this file exists and will not prompte you to enter an email lookup URL.
 1. Upload the resulting `cloudfront-google-auth.zip` to Lambda (ZIP contains index.js, package.json, package-lock.json, config.js, and the node_modules directory.)
 1. Configure CloudFront to use the Lambda function upon **viewer request**:
 
@@ -39,6 +45,24 @@ exports.HOSTED_DOMAIN = HOSTED_DOMAIN;
 exports.TOKEN_AGE = TOKEN_AGE;
 exports.PRIVATE_KEY = PRIVATE_KEY;
 exports.PUBLIC_KEY = PUBLIC_KEY;
+```
+
+## Example google-authz.json
+```
+{
+  "type": "service_account",
+  "project_id": "example",
+  "private_key_id": "h54h8t1eg65s1d6fg1re81r651g",
+  "private_key": "-----BEGIN PRIVATE KEY-----\ndh54et5aa4rg5d4fht5e4h5d4fg5sdf54h5sh65s1651h51s\n-----END PRIVATE KEY-----\n",
+  "client_email": "cloudfront-google-authz@example.iam.gserviceaccount.com",
+  "client_id": "452521516513132321315",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/cloudfront-google-authz%40example.iam.gserviceaccount.com",
+  "cloudfront_authz_groups": [ "foo@example.com", "bar@example.com" ]
+}
+
 ```
 
 ## Build Requirements
