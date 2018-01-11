@@ -15,7 +15,7 @@ function isAuthorized(decoded, request, callback, unauthorized, internalServerEr
     issuer: googleAuthz.client_email,
     expiresIn: 3600,
     audience: googleAuthz.token_uri,
-    subject: 'administrator@widen.com',
+    subject: config.USER_EMAIL,
     algorithm: 'RS256'
   })
 

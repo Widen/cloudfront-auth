@@ -40,6 +40,10 @@ config.js: id_rsa.pub id_rsa
 		$(call get_required_consts)
 		@rm -f auth.js
 ifneq (,$(wildcard google-authz.json))
+		@read -p "Enter user email with permissions to access the Admin APIs: " USER_EMAIL;\
+		echo "const USER_EMAIL = '$$USER_EMAIL';" >> $@
+		@echo "" >> $@
+		@echo "exports.USER_EMAIL = USER_EMAIL;" >> $@
 		cp authz/google-groups-lookup.js auth.js
 else
 		@read -p "Enter email lookup URL(leave blank to skip): " EMAIL_LOOKUP_URL; \
