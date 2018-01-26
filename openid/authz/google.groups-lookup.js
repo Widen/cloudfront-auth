@@ -36,7 +36,10 @@ function isAuthorized(decoded, request, callback, unauthorized, internalServerEr
             }
           })
           .catch(function(error) {
-            internalServerError(error.message, callback);
+            groupChecks++;
+            if (groupChecks >= googleAuthz.cloudfront_authz_groups.length) {
+              unauthorized('Unauthorized. User ' + decoded.sub + ' is not permitted.', callback);
+            }
           });
       }
     })

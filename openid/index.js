@@ -106,8 +106,8 @@ function mainProcess(event, context, callback) {
               callback(null, response);
             }
           });
-        } catch (e) {
-          internalServerError(e.message + ': ' + decoded, callback);
+        } catch (error) {
+          internalServerError(error.message, callback);
         }
       })
       .catch(function(error) {
