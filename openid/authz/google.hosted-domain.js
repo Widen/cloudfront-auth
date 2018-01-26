@@ -1,6 +1,4 @@
-const config = require('./config');
-
-function isAuthorized(decoded, request, callback, unauthorized, internalServerError) {
+function isAuthorized(decoded, request, callback, unauthorized, internalServerError, config) {
   if (decoded.sub.endsWith(config.HOSTED_DOMAIN)) {
     callback(null, request);
   } else {
@@ -8,4 +6,7 @@ function isAuthorized(decoded, request, callback, unauthorized, internalServerEr
   }
 }
 
+function getSubject(decoded) { return decoded.payload.email; }
+
 exports.isAuthorized = isAuthorized;
+exports.getSubject = getSubject;

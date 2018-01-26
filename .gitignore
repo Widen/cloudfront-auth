@@ -1,8 +1,9 @@
 node_modules
-config.js
+config.json
 *.DS_Store
-cloudfront-google-auth.zip
+cloudfront-auth.zip
 id_rsa
 id_rsa.pub
 google-authz.json
 auth.js
+index.js

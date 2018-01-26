@@ -1,17 +1,21 @@
 {
-  "name": "cloudfront-google-auth",
+  "name": "cloudfront-auth",
   "version": "1.0.0",
-  "description": "An AWS Cloudfront Lambda@Edge function to authenticate requests using Google Apps login",
+  "description": "An AWS Cloudfront Lambda@Edge function to authenticate requests using OpenID and OAuth2",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node build/build.js"
   },
   "author": "Widen Enterprises",
   "repository": "github:widen/cloudfront-google-auth",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.17.1",
     "cookie": "^0.3.1",
     "jsonwebtoken": "^8.1.0",
-    "jwk-to-pem": "^1.2.6"
+    "jwk-to-pem": "^1.2.6",
+    "nonce": "^1.0.4",
+    "url": "^0.11.0"
   }
 }
