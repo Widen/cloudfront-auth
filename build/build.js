@@ -142,7 +142,7 @@ function googleConfiguration() {
     config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
 
-    shell.cp('./openid/index.js', './index-code.js');
+    shell.cp('./openid/index.js', './index.js');
     switch (result.AUTHZ) {
       case '1':
         shell.cp('./openid/authz/google.hosted-domain.js', './auth.js');
