@@ -62,8 +62,8 @@ function microsoftConfiguration() {
       }
     }
   }, function(err, result) {
-    config.PRIVATE_KEY = fs.readFileSync('id_rsa', 'utf8');
-    config.PUBLIC_KEY = fs.readFileSync('id_rsa.pub', 'utf8');
+    config.PRIVATE_KEY = fs.readFileSync('build/id_rsa', 'utf8');
+    config.PUBLIC_KEY = fs.readFileSync('build/id_rsa.pub', 'utf8');
     config.DISCOVERY_DOCUMENT = 'https://login.microsoftonline.com/' + result.TENANT + '/.well-known/openid-configuration';
     config.TOKEN_AGE = parseInt(result.TOKEN_AGE, 10);
 
@@ -80,8 +80,8 @@ function microsoftConfiguration() {
     config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
 
-    shell.cp('./openid/authz/microsoft.js', './auth.js');
-    shell.cp('./openid/index.js', './index.js');
+    shell.cp('./authz/microsoft.js', './auth.js');
+    shell.cp('./authn/openid.index.js', './index.js');
     writeConfig(config, zipDefault);
     shell.exec('zip -q cloudfront-auth.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
   });
@@ -123,8 +123,8 @@ function googleConfiguration() {
       }
     }
   }, function(err, result) {
-    config.PRIVATE_KEY = fs.readFileSync('id_rsa', 'utf8');
-    config.PUBLIC_KEY = fs.readFileSync('id_rsa.pub', 'utf8');
+    config.PRIVATE_KEY = fs.readFileSync('build/id_rsa', 'utf8');
+    config.PUBLIC_KEY = fs.readFileSync('build/id_rsa.pub', 'utf8');
     config.DISCOVERY_DOCUMENT = result.DISCOVERY_DOCUMENT;
     config.TOKEN_AGE = parseInt(result.TOKEN_AGE, 10);
 
@@ -142,15 +142,15 @@ function googleConfiguration() {
     config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
 
-    shell.cp('./openid/index.js', './index.js');
+    shell.cp('./authn/openid.index.js', './index.js');
     switch (result.AUTHZ) {
       case '1':
-        shell.cp('./openid/authz/google.hosted-domain.js', './auth.js');
+        shell.cp('./authz/google.hosted-domain.js', './auth.js');
         writeConfig(config, zipDefault);
         shell.exec('zip -q cloudfront-auth.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
         break;
       case '2':
-        shell.cp('./openid/authz/google.http-email-lookup.js', './auth.js');
+        shell.cp('./authz/google.http-email-lookup.js', './auth.js');
         prompt.start();
         prompt.message = colors.blue(">>>");
         prompt.get({
@@ -187,7 +187,7 @@ function googleGroupsConfiguration() {
     if (!shell.test('-f', './google-authz.json')) {
       console.log('Need google-authz.json to use google groups authentication. Stopping build...');
     } else {
-      shell.cp('./openid/authz/google.groups-lookup.js', './auth.js');
+      shell.cp('./authz/google.groups-lookup.js', './auth.js');
       config.SERVICE_ACCOUNT = result.SERVICE_ACCOUNT;
       writeConfig(config, zipGoogleGroups);
     }
@@ -234,8 +234,8 @@ function githubConfiguration() {
     axios.get('https://api.github.com/orgs/' + result.ORGANIZATION)
       .then(function (response) {
         if (response.status == 200) {
-          result.PRIVATE_KEY = fs.readFileSync('id_rsa', 'utf8');
-          result.PUBLIC_KEY = fs.readFileSync('id_rsa.pub', 'utf8');
+          result.PRIVATE_KEY = fs.readFileSync('build/id_rsa', 'utf8');
+          result.PUBLIC_KEY = fs.readFileSync('build/id_rsa.pub', 'utf8');
           result.TOKEN_AGE = parseInt(result.TOKEN_AGE, 10);
           shell.cp('./oauth2/index.js', './index.js');
           writeConfig(result, zipDefault);
