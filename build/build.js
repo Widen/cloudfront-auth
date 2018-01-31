@@ -178,8 +178,8 @@ function googleGroupsConfiguration() {
   prompt.message = colors.blue(">>>");
   prompt.get({
     properties: {
-      USER_EMAIL: {
-        description: colors.red("User Email"),
+      SERVICE_ACCOUNT: {
+        description: colors.red("Service Account"),
         required: true
       }
     }
@@ -188,7 +188,7 @@ function googleGroupsConfiguration() {
       console.log('Need google-authz.json to use google groups authentication. Stopping build...');
     } else {
       shell.cp('./openid/authz/google.groups-lookup.js', './auth.js');
-      config.USER_EMAIL = result.USER_EMAIL;
+      config.SERVICE_ACCOUNT = result.SERVICE_ACCOUNT;
       writeConfig(config, zipGoogleGroups);
     }
   });
