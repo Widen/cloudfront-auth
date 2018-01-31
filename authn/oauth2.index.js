@@ -24,14 +24,10 @@ function mainProcess(event, context, callback) {
     if (!queryDict.code || !queryDict.state) {
       unauthorized("No code or state found.", callback);
     }
+    config.TOKEN_REQUEST.code = queryDict.code;
+    config.TOKEN_REQUEST.state = queryDict.state;
     /** Exchange code for authorization token */
-    const postData = qs.stringify({
-      'code': queryDict.code,
-      'client_id': config.CLIENT_ID,
-      'client_secret': config.CLIENT_SECRET,
-      'redirect_uri': "https://bka.yden.us" + config.CALLBACK_PATH,
-      'state': queryDict.state
-    });
+    const postData = qs.stringify(config.TOKEN_REQUEST);
     axios.post(config.TOKEN_ENDPOINT, postData)
       .then(function(response) {
         var responseQueryString = qs.parse(response.data);
@@ -46,7 +42,7 @@ function mainProcess(event, context, callback) {
               if (!response.data.hasOwnProperty('login')) {
                 internalServerError('Unable to find login', callback);
               }
-              const username = response.data.login;
+              var username = response.data.login;
               var orgsGet = 'https://api.github.com/orgs/' + config.ORGANIZATION + '/members/' + username;
               axios.get(orgsGet, { headers: {'Authorization': authorization} })
                 .then(function(response) {
@@ -68,7 +64,7 @@ function mainProcess(event, context, callback) {
                             config.PRIVATE_KEY.trim(),
                             {
                               audience: headers.host[0].value,
-                              subject: username,
+                              subject: auth.getSubject(username),
                               expiresIn: config.TOKEN_AGE,
                               algorithm: 'RS256'
                             } // Options
@@ -78,7 +74,7 @@ function mainProcess(event, context, callback) {
                     };
                     callback(null, nextLocation);
                   } else {
-                    unauthorized('Unauthorized. User not a member of required organization.' + '\n' + orgsGet + '\n' + authorization, callback);
+                    unauthorized('Unauthorized. User ' + response.login + ' is not a member of required organization.', callback);
                   }
                 })
                 .catch(function(error) {
@@ -109,7 +105,7 @@ function mainProcess(event, context, callback) {
             unauthorized('Unauthorized. User ' + decoded.sub + ' is not permitted.', callback);
         }
       } else {
-        callback(null, request);
+        auth.isAuthorized(decoded, request, callback, unauthorized, internalServerError, config);
       }
     });
   } else {
@@ -118,13 +114,9 @@ function mainProcess(event, context, callback) {
 }
 
 function redirect(request, headers, callback) {
+  config.AUTH_REQUEST.state = request.uri;
   // Redirect to Authorization Server
-  var querystring = qs.stringify({
-    "client_id": config.CLIENT_ID,
-    "redirect_uri": "https://" + headers.host[0].value + config.CALLBACK_PATH,
-    "scope": 'read:org',
-    "state": request.uri
-  });
+  var querystring = qs.stringify(config.AUTH_REQUEST);
 
   const response = {
     status: '302',

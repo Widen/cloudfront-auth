@@ -25,6 +25,7 @@ prompt.get({
       break;
     case '3':
       githubConfiguration();
+      break;
     case '4':
       //customConfiguration();
       console.log("Custom configuration not yet supported. Stopping build...");
@@ -114,10 +115,6 @@ function googleConfiguration() {
         message: colors.green("Entry must only contain numbers"),
         required: true
       },
-      DISCOVERY_DOCUMENT: {
-        message: colors.red("Discovery Document"),
-        required: true
-      },
       AUTHZ: {
         description: colors.red("Authorization methods:\n   (1) Hosted Domain - verify email's domain matches that of the given hosted domain\n   (2) HTTP Email Lookup - verify email exists in JSON array located at given HTTP endpoint\n   (3) Google Groups Lookup - verify email exists in one of given Google Groups\n\n   Select an authorization method")
       }
@@ -125,7 +122,7 @@ function googleConfiguration() {
   }, function(err, result) {
     config.PRIVATE_KEY = fs.readFileSync('build/id_rsa', 'utf8');
     config.PUBLIC_KEY = fs.readFileSync('build/id_rsa.pub', 'utf8');
-    config.DISCOVERY_DOCUMENT = result.DISCOVERY_DOCUMENT;
+    config.DISCOVERY_DOCUMENT = 'https://accounts.google.com/.well-known/openid-configuration';
     config.TOKEN_AGE = parseInt(result.TOKEN_AGE, 10);
 
     config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
@@ -195,7 +192,7 @@ function googleGroupsConfiguration() {
 }
 
 function githubConfiguration() {
-  prompt.message = colors.blue(">>>");
+  prompt.message = colors.blue(">>");
   prompt.start();
   prompt.get({
     properties: {
@@ -207,8 +204,8 @@ function githubConfiguration() {
         message: colors.red("Client Secret"),
         required: true
       },
-      CALLBACK_PATH: {
-        message: colors.red("Callback Path"),
+      REDIRECT_URI: {
+        message: colors.red("Redirect URI"),
         required: true
       },
       TOKEN_AGE: {
@@ -217,28 +214,35 @@ function githubConfiguration() {
         message: colors.green("Entry must only contain numbers"),
         required: true
       },
-      AUTHORIZATION_ENDPOINT: {
-        description: colors.red("Authorization Endpoint"),
-        required: true
-      },
-      TOKEN_ENDPOINT: {
-        description: colors.red("Token Endpoint"),
-        required: true
-      },
       ORGANIZATION: {
-        description: colors.red("Organization (for AuthZ)"),
+        description: colors.red("Organization"),
         required: true
       }
     }
   }, function(err, result) {
+    console.log('https://api.github.com/orgs/' + result.ORGANIZATION);
     axios.get('https://api.github.com/orgs/' + result.ORGANIZATION)
       .then(function (response) {
         if (response.status == 200) {
-          result.PRIVATE_KEY = fs.readFileSync('build/id_rsa', 'utf8');
-          result.PUBLIC_KEY = fs.readFileSync('build/id_rsa.pub', 'utf8');
-          result.TOKEN_AGE = parseInt(result.TOKEN_AGE, 10);
-          shell.cp('./oauth2/index.js', './index.js');
-          writeConfig(result, zipDefault);
+          config.PRIVATE_KEY = fs.readFileSync('build/id_rsa', 'utf8');
+          config.PUBLIC_KEY = fs.readFileSync('build/id_rsa.pub', 'utf8');
+          config.TOKEN_AGE = parseInt(result.TOKEN_AGE, 10);
+          config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
+          config.ORGANIZATION = result.ORGANIZATION;
+          config.AUTHORIZATION_ENDPOINT = 'https://github.com/login/oauth/authorize';
+          config.TOKEN_ENDPOINT = 'https://github.com/login/oauth/access_token';
+
+          config.AUTH_REQUEST.client_id = result.CLIENT_ID;
+          config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
+          config.AUTH_REQUEST.scope = 'read:org user:email';
+
+          config.TOKEN_REQUEST.client_id = result.CLIENT_ID;
+          config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
+          config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
+
+          shell.cp('./authz/github.membership-lookup.js', './auth.js');
+          shell.cp('./authn/oauth2.index.js', './index.js');
+          writeConfig(config, zipDefault);
         } else {
           console.log("Organization could not be verified (code " + response.status + "). Stopping build...");
         }
