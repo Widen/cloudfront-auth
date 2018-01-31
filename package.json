@@ -8,7 +8,7 @@
     "build": "node build/build.js"
   },
   "author": "Widen Enterprises",
-  "repository": "github:widen/cloudfront-google-auth",
+  "repository": "github:widen/cloudfront-auth",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.17.1",
