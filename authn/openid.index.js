@@ -138,6 +138,8 @@ function mainProcess(event, context, callback) {
 }
 
 function redirect(request, headers, callback) {
+  var n = require('nonce')();
+  config.AUTH_REQUEST.nonce = n();  
   config.AUTH_REQUEST.state = request.uri;
   // Redirect to Authorization Server
   var querystring = qs.stringify(config.AUTH_REQUEST);
