@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 function isAuthorized(decoded, request, callback, unauthorized, internalServerError, config) {
-  axios.get(config.EMAIL_LOOKUP_URL)
+  axios.get(config.HTTP_EMAIL_LOOKUP)
     .then(function(response) {
       if (Array.isArray(response.data) && response.data.indexOf(decoded.sub) > -1) {
         callback(null, request);
