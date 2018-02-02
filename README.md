@@ -21,7 +21,7 @@ Session duration is the time in seconds that JWT token is valid for. After sessi
 1. Execute `make` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
     1. Choose `Github` as the authorization method and enter the values for Client ID, Client Secret, Redirect URI, Session Duration and Organization
         -  cloudfront-auth will check that users are a member of the entered Organization.
-1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to [#configure](configure CloudFront)
+1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to the [configuration step](#configure-cloudfront)
 
 #### Use Google
 
@@ -38,18 +38,18 @@ Session duration is the time in seconds that JWT token is valid for. After sessi
         1. Enter your JSON Email Lookup URL (example below) that consists of a single JSON array of emails to search through
     1. Google Groups Lookup
         1. [Use Google Groups to authorize users](https://google.com)
-1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to [#configure](configure CloudFront)
+1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to the [configuration step](#configure-cloudfront)
 
 #### Use Microsoft
 
 1. Clone or download this repo
 1. In your Azure portal, go to Azure Active Directory and select *App registrations*
-1. Create a new application registration with an application type of *Web app / api*
-1. Once created, go to your application `Settings->Keys` and make a new key with your desired duration.  Hit save and copy the value.  This will be your `client_secret`
-1. Above where you selected `Keys`, go to `Reply URLs` and enter your Cloudfront hostname with your preferred path value for the authorization callback. Example: https://my-cloudfront-site.example.com/_callback
+    1. Create a new application registration with an application type of *Web app / api*
+    1. Once created, go to your application `Settings->Keys` and make a new key with your desired duration.  Hit save and copy the value.  This will be your `client_secret`
+    1. Above where you selected `Keys`, go to `Reply URLs` and enter your Cloudfront hostname with your preferred path value for the authorization callback. Example: https://my-cloudfront-site.example.com/_callback
 1. Execute `make` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
 1. Choose `Microsoft` as the authorization method and enter the values for [Tenant](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-howto-tenant), Client ID (*Application ID*), Client Secret (*previously created key*), Redirect URI and Session Duration 
-1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to [#configure](configure CloudFront)
+1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to the [configuration step](#configure-cloudfront)
 
 ### Configure CloudFront
 
