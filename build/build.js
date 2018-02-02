@@ -57,8 +57,8 @@ function microsoftConfiguration() {
         message: colors.red("Redirect URI"),
         required: true
       },
-      TOKEN_AGE: {
-        message: colors.red("Token Age (seconds)"),
+      SESSION_DURATION: {
+        message: colors.red("Session Duration (seconds)"),
         required: true
       }
     }
@@ -66,7 +66,7 @@ function microsoftConfiguration() {
     config.PRIVATE_KEY = fs.readFileSync('build/id_rsa', 'utf8');
     config.PUBLIC_KEY = fs.readFileSync('build/id_rsa.pub', 'utf8');
     config.DISCOVERY_DOCUMENT = 'https://login.microsoftonline.com/' + result.TENANT + '/.well-known/openid-configuration';
-    config.TOKEN_AGE = parseInt(result.TOKEN_AGE, 10);
+    config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10);
 
     config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
 
@@ -109,9 +109,9 @@ function googleConfiguration() {
         message: colors.red("Hosted Domain"),
         required: true
       },
-      TOKEN_AGE: {
+      SESSION_DURATION: {
         pattern: /^[0-9]*$/,
-        description: colors.red("Token Age (seconds)"),
+        description: colors.red("Session Duration (seconds)"),
         message: colors.green("Entry must only contain numbers"),
         required: true
       },
@@ -123,7 +123,7 @@ function googleConfiguration() {
     config.PRIVATE_KEY = fs.readFileSync('build/id_rsa', 'utf8');
     config.PUBLIC_KEY = fs.readFileSync('build/id_rsa.pub', 'utf8');
     config.DISCOVERY_DOCUMENT = 'https://accounts.google.com/.well-known/openid-configuration';
-    config.TOKEN_AGE = parseInt(result.TOKEN_AGE, 10);
+    config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10);
 
     config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
     config.HOSTED_DOMAIN = result.HD;
@@ -208,9 +208,9 @@ function githubConfiguration() {
         message: colors.red("Redirect URI"),
         required: true
       },
-      TOKEN_AGE: {
+      SESSION_DURATION: {
         pattern: /^[0-9]*$/,
-        description: colors.red("Token Age (seconds)"),
+        description: colors.red("Session Duration (seconds)"),
         message: colors.green("Entry must only contain numbers"),
         required: true
       },
@@ -225,7 +225,7 @@ function githubConfiguration() {
         if (response.status == 200) {
           config.PRIVATE_KEY = fs.readFileSync('build/id_rsa', 'utf8');
           config.PUBLIC_KEY = fs.readFileSync('build/id_rsa.pub', 'utf8');
-          config.TOKEN_AGE = parseInt(result.TOKEN_AGE, 10);
+          config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10);
           config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
           config.ORGANIZATION = result.ORGANIZATION;
           config.AUTHORIZATION_ENDPOINT = 'https://github.com/login/oauth/authorize';

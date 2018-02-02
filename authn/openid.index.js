@@ -96,7 +96,7 @@ function mainProcess(event, context, callback) {
                       {
                         audience: headers.host[0].value,
                         subject: auth.getSubject(decodedData),
-                        expiresIn: 10600,
+                        expiresIn: config.SESSION_DURATION,
                         algorithm: 'RS256'
                       } // Options
                     ))

@@ -65,7 +65,7 @@ function mainProcess(event, context, callback) {
                             {
                               audience: headers.host[0].value,
                               subject: auth.getSubject(username),
-                              expiresIn: config.TOKEN_AGE,
+                              expiresIn: config.SESSION_DURATION,
                               algorithm: 'RS256'
                             } // Options
                           ))
