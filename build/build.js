@@ -152,12 +152,12 @@ function googleConfiguration() {
         prompt.message = colors.blue(">>>");
         prompt.get({
           properties: {
-            HTTP_EMAIL_LOOKUP: {
-              description: colors.red("Email lookup endpoint")
+            JSON_EMAIL_LOOKUP: {
+              description: colors.red("JSON email lookup endpoint")
             }
           }
         }, function (err, result) {
-          config.HTTP_EMAIL_LOOKUP = result.HTTP_EMAIL_LOOKUP;
+          config.JSON_EMAIL_LOOKUP = result.JSON_EMAIL_LOOKUP;
           writeConfig(config, zipDefault);
         });
         break;
