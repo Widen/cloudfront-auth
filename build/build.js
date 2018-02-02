@@ -220,7 +220,6 @@ function githubConfiguration() {
       }
     }
   }, function(err, result) {
-    console.log('https://api.github.com/orgs/' + result.ORGANIZATION);
     axios.get('https://api.github.com/orgs/' + result.ORGANIZATION)
       .then(function (response) {
         if (response.status == 200) {
