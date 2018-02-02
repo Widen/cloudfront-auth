@@ -17,7 +17,7 @@ Upon successful authentication, a cookie ( named `TOKEN`) with the value of a ne
    1. HTTP Email Lookup (*Google*)
       1. Check that verified email exists in JSON array from given site. Enter email lookup URL when prompted.
    1. Google Groups Lookup (*Google*)
-      1. Check that verified email exists in one of given Google Groups.  Download your service account JSON file and rename to 'google-authz.json' (example below).  Place it in the root directory and add the key 'cloudfront_authz_groups' whose value is a JSON array of groups to check.  The Makefile will detect this file exists and will not prompte you to enter an email lookup URL.
+      1. Check that verified email exists in one of given Google Groups.  Download your service account JSON file and rename to 'google-groups-authz.json' (example below).  Place it in the root directory and add the key 'cloudfront_authz_groups' whose value is a JSON array of groups to check.  The Makefile will detect this file exists and will not prompte you to enter an email lookup URL.
    1. Organization Membership Lookup (*GitHub*)
       1. Verify the user that logged in is a member of the given organization.
 1. Upload the resulting `cloudfront-auth.zip` to your Lambda function.
@@ -27,7 +27,7 @@ Upon successful authentication, a cookie ( named `TOKEN`) with the value of a ne
    1. Point to Lambda function on viewer request (bottom of edit page)![alt text](https://lh3.googleusercontent.com/9YGTDMxX-9q_3GhW-w9ORcWejG3ZoQUBhviVb3_Dr1iCuvbmvSHM0WXLZ5UrlvUzkuDcfBtJJMqF5C7kWdJuG5P2abOiBNhLoxTF41oQqOzyWofio6TCTW_56SjjaMCzDyocusbx9GzOaJNHAWIIvDXByLwfHCaWQf7VcGdBx4WnwKwvq5_08Pv2G2JIkznTRzSrpd6KbMpkSUT7H3dOO-mZbPEl6NKvmIJ0iAW834R4KSx0gHEtzTLYu6FPN0oWHkQwGHh2x4kmBaSp1WyxaE98okVe3QMZ_bYPt2NDVSQHuPcd3mOQAjJBNnyBoq5zgJYe5r5AdSbyIJ7bfJDthUcqk_ZL67DJ39_NkFrdyJN2A5n5Iunn2axtN7vMlsi54WxfcQFpxTs3x_2QPRYGEaYUnjuLVpS7ZdlDgp3-46pUqEISCOAVb5wMU2lY4KFEdEiSOccKcvjuyK25GxvDvGkZTR5xP6DRm8A6uOmQbOEEL5M9OMB0_OS5pMW_DWAnXeqwHSLZk42Wc58YyJlLSZ0WBnFPvAHoEuV2N-mYL6NhKSoLBEK_HM6TyEH03SolS6baVyTH_cPSDwya-N7EQtnyM1aL3WKaKv6V_ETTH3g8zOB-EydUbjpEEPyUJrjqFsrHNQieeksEGIWe0gqX93r7FpxiLXk=w1528-h298-no "Point to Lambda function on viewer request")
 
 ## Examples
-### google-authz.json
+### google-groups-authz.json
 ```
 {
   "type": "service_account",
@@ -52,6 +52,7 @@ Upon successful authentication, a cookie ( named `TOKEN`) with the value of a ne
 ## Build Requirements
  - [npm](https://www.npmjs.com/) ^5.6.0
  - [node](https://nodejs.org/en/) ^7.10.0
+ - [openssl](https://www.openssl.org)
 
 ## Contributing
 All contributions are welcome. Please create an issue in order open up communication with the community.
