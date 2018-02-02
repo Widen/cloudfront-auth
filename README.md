@@ -37,7 +37,7 @@ Session duration is the time in seconds that JWT token is valid for. After sessi
     1. JSON Email Lookup
         1. Enter your JSON Email Lookup URL (example below) that consists of a single JSON array of emails to search through
     1. Google Groups Lookup
-        1. [Use Google Groups to authorize users](https://google.com)
+        1. [Use Google Groups to authorize users](https://github.com/Widen/cloudfront-auth/wiki/Google-Groups-Setup)
 1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to the [configuration step](#configure-cloudfront)
 
 #### Use Microsoft
@@ -60,7 +60,7 @@ Session duration is the time in seconds that JWT token is valid for. After sessi
 
 
 ## Authorization Method Examples
-    - [Use Google Groups to authorize users](wiki link)
+    - [Use Google Groups to authorize users](https://github.com/Widen/cloudfront-auth/wiki/Google-Groups-Setup)
 
     ### JSON URL Emails
     ```
