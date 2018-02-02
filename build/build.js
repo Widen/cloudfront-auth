@@ -60,6 +60,9 @@ function microsoftConfiguration() {
       SESSION_DURATION: {
         message: colors.red("Session Duration (seconds)"),
         required: true
+      },
+      AUTHZ: {
+        description: colors.red("Authorization methods:\n   (1) Azure AD Login (default)\n   (2) JSON Email Lookup\n\n   Select an authorization method")
       }
     }
   }, function(err, result) {
@@ -83,8 +86,30 @@ function microsoftConfiguration() {
 
     shell.cp('./authz/microsoft.js', './auth.js');
     shell.cp('./authn/openid.index.js', './index.js');
-    writeConfig(config, zipDefault);
-    shell.exec('zip -q cloudfront-auth.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
+    switch (result.AUTHZ) {
+      case '1':
+        shell.cp('./authz/microsoft.js', './auth.js');
+        writeConfig(config, zipDefault);
+        shell.exec('zip -q cloudfront-auth.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
+        break;
+      case '2':
+        shell.cp('./authz/microsoft.json-email-lookup.js', './auth.js');
+        prompt.start();
+        prompt.message = colors.blue(">>>");
+        prompt.get({
+          properties: {
+            JSON_EMAIL_LOOKUP: {
+              description: colors.red("JSON email lookup endpoint")
+            }
+          }
+        }, function (err, result) {
+          config.JSON_EMAIL_LOOKUP = result.JSON_EMAIL_LOOKUP;
+          writeConfig(config, zipDefault);
+        });
+        break;
+      default:
+        console.log("Method not recognized. Stopping build...");
+    }
   });
 }
 
