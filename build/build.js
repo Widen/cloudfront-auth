@@ -172,7 +172,7 @@ function googleConfiguration() {
         shell.exec('zip -q cloudfront-auth.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
         break;
       case '2':
-        shell.cp('./authz/google.http-email-lookup.js', './auth.js');
+        shell.cp('./authz/google.json-email-lookup.js', './auth.js');
         prompt.start();
         prompt.message = colors.blue(">>>");
         prompt.get({
