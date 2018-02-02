@@ -13,7 +13,7 @@ function isAuthorized(decoded, request, callback, unauthorized, internalServerEr
     issuer: googleAuthz.client_email,
     expiresIn: 3600,
     audience: googleAuthz.token_uri,
-    subject: config.SERVICE_ACCOUNT,
+    subject: config.SERVICE_ACCOUNT_EMAIL,
     algorithm: 'RS256'
   });
   const postData = qs.stringify({

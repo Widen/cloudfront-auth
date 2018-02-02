@@ -175,8 +175,8 @@ function googleGroupsConfiguration() {
   prompt.message = colors.blue(">>>");
   prompt.get({
     properties: {
-      SERVICE_ACCOUNT: {
-        description: colors.red("Service Account"),
+      SERVICE_ACCOUNT_EMAIL: {
+        description: colors.red("Service Account Email"),
         required: true
       }
     }
@@ -185,7 +185,7 @@ function googleGroupsConfiguration() {
       console.log('Need google-authz.json to use google groups authentication. Stopping build...');
     } else {
       shell.cp('./authz/google.groups-lookup.js', './auth.js');
-      config.SERVICE_ACCOUNT = result.SERVICE_ACCOUNT;
+      config.SERVICE_ACCOUNT_EMAIL = result.SERVICE_ACCOUNT_EMAIL;
       writeConfig(config, zipGoogleGroups);
     }
   });
