@@ -240,7 +240,7 @@ function githubConfiguration() {
           config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
 
           shell.cp('./authz/github.membership-lookup.js', './auth.js');
-          shell.cp('./authn/oauth2.index.js', './index.js');
+          shell.cp('./authn/github.index.js', './index.js');
           writeConfig(config, zipDefault);
         } else {
           console.log("Organization could not be verified (code " + response.status + "). Stopping build...");
