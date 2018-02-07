@@ -19,7 +19,7 @@ Session duration is defined as the number of seconds that JWT is valid for. Afte
 1. Execute `make` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
     1. Choose `Github` as the authorization method and enter the values for Client ID, Client Secret, Redirect URI, Session Duration and Organization
         -  cloudfront-auth will check that users are a member of the entered Organization.
-1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to the [configuration step](#configure-cloudfront)
+1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to the [configuration step](#configure-lambda-&-cloudfront)
 
 #### Login using Google
 
@@ -36,7 +36,7 @@ Session duration is defined as the number of seconds that JWT is valid for. Afte
         1. Enter your JSON Email Lookup URL (example below) that consists of a single JSON array of emails to search through
     1. Google Groups Lookup
         1. [Use Google Groups to authorize users](https://github.com/Widen/cloudfront-auth/wiki/Google-Groups-Setup)
-1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to the [configuration step](#configure-cloudfront)
+1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to the [configuration step](#configure-lambda-&-cloudfront)
 
 #### Login using Microsoft Azure
 
@@ -47,7 +47,7 @@ Session duration is defined as the number of seconds that JWT is valid for. Afte
     1. Above where you selected `Keys`, go to `Reply URLs` and enter your Cloudfront hostname with your preferred path value for the authorization callback. Example: https://my-cloudfront-site.example.com/_callback
 1. Execute `make` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
 1. Choose `Microsoft` as the authorization method and enter the values for [Tenant](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-howto-tenant), Client ID (*Application ID*), Client Secret (*previously created key*), Redirect URI and Session Duration 
-1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to the [configuration step](#configure-cloudfront)
+1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to the [configuration step](#configure-lambda-&-cloudfront)
 
 ### Configure Lambda & CloudFront
 
