@@ -62,7 +62,7 @@ function microsoftConfiguration() {
         required: true
       },
       AUTHZ: {
-        description: colors.red("Authorization methods:\n   (1) Azure AD Login (default)\n   (2) JSON Email Lookup\n\n   Select an authorization method")
+        description: colors.red("Authorization methods:\n   (1) Azure AD Login (default)\n   (2) JSON Username Lookup\n\n   Select an authorization method")
       }
     }
   }, function(err, result) {
@@ -77,7 +77,7 @@ function microsoftConfiguration() {
     config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.AUTH_REQUEST.response_type = 'code';
     config.AUTH_REQUEST.response_mode = 'query';
-    config.AUTH_REQUEST.scope = 'openid email';
+    config.AUTH_REQUEST.scope = 'openid';
 
     config.TOKEN_REQUEST.client_id = result.CLIENT_ID;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
@@ -93,17 +93,17 @@ function microsoftConfiguration() {
         shell.exec('zip -q cloudfront-auth.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
         break;
       case '2':
-        shell.cp('./authz/microsoft.json-email-lookup.js', './auth.js');
+        shell.cp('./authz/microsoft.json-username-lookup.js', './auth.js');
         prompt.start();
         prompt.message = colors.blue(">>>");
         prompt.get({
           properties: {
-            JSON_EMAIL_LOOKUP: {
-              description: colors.red("JSON email lookup endpoint")
+            JSON_USERNAME_LOOKUP: {
+              description: colors.red("JSON username lookup endpoint")
             }
           }
         }, function (err, result) {
-          config.JSON_EMAIL_LOOKUP = result.JSON_EMAIL_LOOKUP;
+          config.JSON_USERNAME_LOOKUP = result.JSON_USERNAME_LOOKUP;
           writeConfig(config, zipDefault);
         });
         break;

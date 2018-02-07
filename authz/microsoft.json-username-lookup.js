@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 function isAuthorized(decoded, request, callback, unauthorized, internalServerError, config) {
-  axios.get(config.JSON_EMAIL_LOOKUP)
+  axios.get(config.JSON_USERNAME_LOOKUP)
     .then(function(response) {
       if (Array.isArray(response.data) && response.data.indexOf(decoded.sub) > -1) {
         callback(null, request);
@@ -15,10 +15,10 @@ function isAuthorized(decoded, request, callback, unauthorized, internalServerEr
 }
 
 function getSubject(decoded) { 
-    if (decoded.payload.hasOwnProperty('email')) {
-        return decoded.payload.email;
+    if (decoded.payload.hasOwnProperty('upn')) {
+        return decoded.payload.upn;
     } else {
-        return 'Email not found';
+        return 'Username not found';
     }
 }
 
