@@ -1,7 +1,7 @@
 {
   "name": "cloudfront-auth-build",
   "version": "1.0.0",
-  "description": "",
+  "description": "Build files for cloudfront-auth",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
