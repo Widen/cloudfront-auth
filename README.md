@@ -47,6 +47,10 @@ Session duration is defined as the number of seconds that JWT is valid for. Afte
     1. Above where you selected `Keys`, go to `Reply URLs` and enter your Cloudfront hostname with your preferred path value for the authorization callback. Example: https://my-cloudfront-site.example.com/_callback
 1. Execute `make` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
 1. Choose `Microsoft` as the authorization method and enter the values for [Tenant](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-howto-tenant), Client ID (*Application ID*), Client Secret (*previously created key*), Redirect URI and Session Duration 
+1. Select the preferred authentication method
+    1. Azure AD Membership (default)
+    1. JSON Username Lookup
+        1. Enter your JSON Username Lookup URL (example below) that consists of a single JSON array of usernames to search through
 1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
 
 ### Configure Lambda and CloudFront
