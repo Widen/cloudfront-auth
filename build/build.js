@@ -209,9 +209,14 @@ function googleGroupsConfiguration() {
     if (!shell.test('-f', './google-authz.json')) {
       console.log('Need google-authz.json to use google groups authentication. Stopping build...');
     } else {
-      shell.cp('./authz/google.groups-lookup.js', './auth.js');
-      config.SERVICE_ACCOUNT_EMAIL = result.SERVICE_ACCOUNT_EMAIL;
-      writeConfig(config, zipGoogleGroups);
+      var googleAuthz = JSON.parse(fs.readFileSync('./google-authz.json'));
+      if (!googleAuthz.hasOwnProperty('cloudfront_authz_groups')) {
+        console.log('google-authz.json is missing cloudfront_authz_groups. Stopping build...');
+      } else {
+        shell.cp('./authz/google.groups-lookup.js', './auth.js');
+        config.SERVICE_ACCOUNT_EMAIL = result.SERVICE_ACCOUNT_EMAIL;
+        writeConfig(config, zipGoogleGroups);
+      }
     }
   });
 }
