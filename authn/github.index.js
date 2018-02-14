@@ -141,6 +141,12 @@ function unauthorized(body, callback) {
     status: '401',
     statusDescription: 'Unauthorized',
     body: body,
+    headers: {
+       'set-cookie' : [{
+         key: 'Set-Cookie',
+         value : cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
+       }],
+    },
   };
   callback(null, response);
 }
