@@ -1,0 +1,19 @@
+{
+  "status": "302",
+  "statusDescription": "Found",
+  "body": "Redirecting to OIDC provider",
+  "headers": {
+    "location": [
+      {
+        "key": "Location",
+	"value": "YOUR_OIDC_PROVIDER_LOGIN"
+      }
+    ],
+    "set-cookie": [
+      {
+        "key": "Set-Cookie",
+        "value": "TOKEN=; Path=/; Expires=Sun, 01 Feb 1970 00:00:00 GMT"
+      }
+    ]
+  }
+}

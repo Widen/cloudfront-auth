@@ -4,8 +4,10 @@ const fs = require('fs');
 const axios = require('axios');
 const colors = require('colors/safe');
 const url = require('url');
+const R = require('ramda');
 
 var config = { AUTH_REQUEST: {}, TOKEN_REQUEST: {} };
+var oldConfig;
 
 prompt.message = colors.blue(">");
 prompt.start();
@@ -16,17 +18,36 @@ prompt.get({
     }
   }
 }, function (err, result) {
+  if (fs.existsSync('./config.json')) {
+    oldConfig = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+  }
   switch (result.method) {
     case '1':
+      if (R.pathOr('', ['AUTHN'], oldConfig) != "GOOGLE") {
+        oldConfig = undefined;
+      }
+      config.AUTHN = "GOOGLE";
       googleConfiguration();
       break;
     case '2':
+      if (R.pathOr('', ['AUTHN'], oldConfig) != "MICROSOFT") {
+        oldConfig = undefined;
+      }
+      config.AUTHN = "MICROSOFT";      
       microsoftConfiguration();
       break;
     case '3':
+      if (R.pathOr('', ['AUTHN'], oldConfig) != "GITHUB") {
+        oldConfig = undefined;
+      }
+      config.AUTHN = "GITHUB";
       githubConfiguration();
       break;
     case '4':
+      if (R.pathOr('', ['AUTHN'], oldConfig) != "UNKNOWN") {
+        oldConfig = undefined;
+      }
+      config.AUTHN = "UNKNOWN";
       //customConfiguration();
       console.log("Custom configuration not yet supported. Stopping build...");
       process.exit(1);
@@ -47,19 +68,23 @@ function microsoftConfiguration() {
       },
       CLIENT_ID: {
         message: colors.red("Client ID"),
-        required: true
+        required: true,
+        default: R.pathOr('', ['AUTH_REQUEST', 'client_id'], oldConfig)
       },
       CLIENT_SECRET: {
         message: colors.red("Client Secret"),
-        required: true
+        required: true,
+        default: R.pathOr('', ['TOKEN_REQUEST', 'client_secret'], oldConfig)
       },
       REDIRECT_URI: {
         message: colors.red("Redirect URI"),
-        required: true
+        required: true,
+        default: R.pathOr('', ['AUTH_REQUEST', 'redirect_uri'], oldConfig)
       },
       SESSION_DURATION: {
         message: colors.red("Session Duration (seconds)"),
-        required: true
+        required: true,
+        default: R.pathOr('', ['SESSION_DURATION'], oldConfig)
       },
       AUTHZ: {
         description: colors.red("Authorization methods:\n   (1) Azure AD Login (default)\n   (2) JSON Username Lookup\n\n   Select an authorization method")
@@ -99,7 +124,8 @@ function microsoftConfiguration() {
         prompt.get({
           properties: {
             JSON_USERNAME_LOOKUP: {
-              description: colors.red("JSON username lookup endpoint")
+              description: colors.red("JSON username lookup endpoint"),
+              default: R.pathOr('', ['JSON_USERNAME_LOOKUP'], oldConfig)
             }
           }
         }, function (err, result) {
@@ -120,25 +146,30 @@ function googleConfiguration() {
     properties: {
       CLIENT_ID: {
         message: colors.red("Client ID"),
-        required: true
+        required: true,
+        default: R.pathOr('', ['AUTH_REQUEST', 'client_id'], oldConfig)
       },
       CLIENT_SECRET: {
         message: colors.red("Client Secret"),
-        required: true
+        required: true,
+        default: R.pathOr('', ['TOKEN_REQUEST', 'client_secret'], oldConfig)
       },
       REDIRECT_URI: {
         message: colors.red("Redirect URI"),
-        required: true
+        required: true,
+        default: R.pathOr('', ['AUTH_REQUEST', 'redirect_uri'], oldConfig)
       },
       HD: {
         message: colors.red("Hosted Domain"),
-        required: true
+        required: true,
+        default: R.pathOr('', ['AUTH_REQUEST', 'hd'], oldConfig)
       },
       SESSION_DURATION: {
         pattern: /^[0-9]*$/,
         description: colors.red("Session Duration (seconds)"),
         message: colors.green("Entry must only contain numbers"),
-        required: true
+        required: true,
+        default: R.pathOr('', ['SESSION_DURATION'], oldConfig)
       },
       AUTHZ: {
         description: colors.red("Authorization methods:\n   (1) Hosted Domain - verify email's domain matches that of the given hosted domain\n   (2) HTTP Email Lookup - verify email exists in JSON array located at given HTTP endpoint\n   (3) Google Groups Lookup - verify email exists in one of given Google Groups\n\n   Select an authorization method")
@@ -178,7 +209,8 @@ function googleConfiguration() {
         prompt.get({
           properties: {
             JSON_EMAIL_LOOKUP: {
-              description: colors.red("JSON email lookup endpoint")
+              description: colors.red("JSON email lookup endpoint"),
+              default: R.pathOr('', ['JSON_EMAIL_LOOKUP'], oldConfig)
             }
           }
         }, function (err, result) {
@@ -202,7 +234,8 @@ function googleGroupsConfiguration() {
     properties: {
       SERVICE_ACCOUNT_EMAIL: {
         description: colors.red("Service Account Email"),
-        required: true
+        required: true,
+        default: R.pathOr('', ['SERVICE_ACCOUNT_EMAIL'], oldConfig)
       }
     }
   }, function (err, result) {
@@ -228,25 +261,30 @@ function githubConfiguration() {
     properties: {
       CLIENT_ID: {
         message: colors.red("Client ID"),
-        required: true
+        required: true,
+        default: R.pathOr('', ['AUTH_REQUEST', 'client_id'], oldConfig)
       },
       CLIENT_SECRET: {
         message: colors.red("Client Secret"),
-        required: true
+        required: true,
+        default: R.pathOr('', ['TOKEN_REQUEST', 'client_secret'], oldConfig)
       },
       REDIRECT_URI: {
         message: colors.red("Redirect URI"),
-        required: true
+        required: true,
+        default: R.pathOr('', ['AUTH_REQUEST', 'redirect_uri'], oldConfig)
       },
       SESSION_DURATION: {
         pattern: /^[0-9]*$/,
         description: colors.red("Session Duration (seconds)"),
         message: colors.green("Entry must only contain numbers"),
-        required: true
+        required: true,
+        default: R.pathOr('', ['SESSION_DURATION'], oldConfig)
       },
       ORGANIZATION: {
         description: colors.red("Organization"),
-        required: true
+        required: true,
+        default: R.pathOr('', ['ORGANIZATION'], oldConfig)
       }
     }
   }, function(err, result) {
@@ -284,6 +322,7 @@ function githubConfiguration() {
 
 function zipDefault() {
   shell.exec('zip -q cloudfront-auth.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
+  // Prompt user for tests
 }
 
 function zipGoogleGroups() {

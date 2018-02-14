@@ -1,0 +1,31 @@
+{
+  "Records": [
+    {
+      "cf": {
+        "request": {
+          "headers": {
+            "host": [
+              {
+                "value": "d123.cf.net?code=1234&state=1234",
+                "key": "Host"
+              }
+            ],
+            "user-agent": [
+              {
+                "value": "test-agent",
+                "key": "User-Agent"
+              }
+            ]
+          },
+          "clientIp": "2001:cdba::3257:9652",
+          "uri": "/_callback?code=AQABAAIAAABHh4kmS_aKT5XrjzxRAtHzHS9JXgZkXeb89aXO6WkmbjrIol6AzujXOD0AqmoD35RDqxcLom42JYsG7yvG9jvB8y-DX0W-m1832L3_GQPw5e1eHsdyPLJ2YZcSoSkn00ph-VXdKizaGfrE8afEzZf0O7TUpQBwAtzjAHYDemVl0li4UBadNHkkRo0Q3a33RxcCfPui3vUR-yRkwSPRrxF3mzXVwVGycH-ToHu7eFz2xStgXMfQwigAB9OG03s_z8jZuMWXUrK0IgHWHm5CyVS03sVRiK4MCy-5StodUNb8sAWoE5AnFaHD2FMb9ukfnlykqo1KEJ82kd2UZiS3Q2qlprRR626h9_eQya6OCfnnaAmJD3u-p9H_DOnA3DgkHJEfdfDbh2Qt4Ycf-eg-0pjje9FSnMDwhVHcctSr1gbn62-X8flLvwvhl7vwWSBgqh2mhBN5r4RwBNVzeDMhiSvhhXYL-f8XANkng8njESMU-xytf5PFNrbWfl7a8zlvLTvgkialiICPEbgYInGvJI0H5InD06dmKddMHSFRy0p_1SAA&state=%2fresource.zip&session_state=92798b21-a730-47d1-be4c-9ff4e891c8b1",
+          "method": "GET",
+          "querystring": "code=AQABAAIAAABHh4kmS_aKT5XrjzxRAtHzfQ7h-5kG2tcL3TbDIzfBWqOxY-tooHgRbVvtbQLJQE4ucReW-g1iaGPcuPEh6d8ju2jZ2JJpu9Myw00EX8ts9rodjgPs2ksk6nF1QODAZeDvU6w0CC0XPK9K1gwGh-3EV7vGe5a6r2YY0IOjO4wmwgoCCjg7ibcJYbuxfJWcfN6UTc6VXe3qqvlmHt4QhHM8LtTdxof478rMn25AwcgTFcYLLnLoICENnZ1kQ1SLX2PDAq2ub-anw9B05txocCTk7ABYjHMnevoZkdjZ5mC2lnN5uG-AfGSYbuuTqOI6erJ3VY9uNtE_fNU84uXVQiSYilR9dT6SkXIUw8rzKZIwoGk7YgHWQtS83sWEIkhA8DLRO7W_AHnVRpP7Qi9mYg51dEg0MUp74YhuUr1Z8i4XUWrw0hu8s0PsZn6SkziEU6QGeEuWj3Z9y18mkXhYZMvjzlIMuQ76ASLN_U3GbLQbMs6cwHmlblo1eYOxWPrB_0prVR90UsMM2HNq33Zv-gMzV1ElVDhCXv7shx6Thf_RxiAA&state=%2f&session_state=fc350b67-673e-4ecd-98e7-3c2f5a875d0a"
+        },
+        "config": {
+          "distributionId": "EXAMPLE"
+        }
+      }
+    }
+  ]
+}
