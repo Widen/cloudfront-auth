@@ -1,5 +1,0 @@
-{
-  "status": "401",
-  "statusDescription": "Unauthorized",
-  "body": "invalid signature"
-}
