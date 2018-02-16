@@ -45,6 +45,10 @@ function mainProcess(event, context, callback) {
   const request = event.Records[0].cf.request;
   const headers = request.headers;
   const queryDict = qs.parse(request.querystring);
+  if (event.Records[0].cf.config.hasOwnProperty('test')) {
+    config.AUTH_REQUEST.redirect_uri = event.Records[0].cf.config.test;
+    config.TOKEN_REQUEST.redirect_uri = event.Records[0].cf.config.test;
+  }
   if (request.uri.startsWith(config.CALLBACK_PATH)) {
     /** Verify code is in querystring */
     if (!queryDict.code) {
@@ -80,24 +84,24 @@ function mainProcess(event, context, callback) {
             } else {
               // Once verified, create new JWT for this server
               const response = {
-                status: '302',
-                statusDescription: 'Found',
-                body: 'ID token retrieved.',
-                headers: {
-                  location : [{
-                    key: 'Location',
-                    value: queryDict.state
+                "status": "302",
+                "statusDescription": "Found",
+                "body": "ID token retrieved.",
+                "headers": {
+                  "location" : [{
+                    "key": "Location",
+                    "value": queryDict.state
                   }],
-                  'set-cookie' : [{
-                    key: 'Set-Cookie',
-                    value : cookie.serialize('TOKEN', jwt.sign(
+                  "set-cookie" : [{
+                    "key": "Set-Cookie",
+                    "value" : cookie.serialize('TOKEN', jwt.sign(
                       { },
                       config.PRIVATE_KEY.trim(),
                       {
-                        audience: headers.host[0].value,
-                        subject: auth.getSubject(decodedData),
-                        expiresIn: config.SESSION_DURATION,
-                        algorithm: 'RS256'
+                        "audience": headers.host[0].value,
+                        "subject": auth.getSubject(decodedData),
+                        "expiresIn": config.SESSION_DURATION,
+                        "algorithm": "RS256"
                       } // Options
                     ))
                   }],
@@ -145,17 +149,17 @@ function redirect(request, headers, callback) {
   var querystring = qs.stringify(config.AUTH_REQUEST);
 
   const response = {
-    status: '302',
-    statusDescription: 'Found',
-    body: 'Redirecting to OIDC provider',
-    headers: {
-        location : [{
-            key: 'Location',
-            value: discoveryDocument.authorization_endpoint + '?' + querystring
+    "status": "302",
+    "statusDescription": "Found",
+    "body": "Redirecting to OIDC provider",
+    "headers": {
+        "location" : [{
+            "key": "Location",
+            "value": discoveryDocument.authorization_endpoint + '?' + querystring
          }],
-         'set-cookie' : [{
-           key: 'Set-Cookie',
-           value : cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
+         "set-cookie" : [{
+           "key": "Set-Cookie",
+           "value" : cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
          }],
     },
   };
@@ -164,13 +168,13 @@ function redirect(request, headers, callback) {
 
 function unauthorized(body, callback) {
   const response = {
-    status: '401',
-    statusDescription: 'Unauthorized',
-    body: body,
-    headers: {
-       'set-cookie' : [{
-         key: 'Set-Cookie',
-         value : cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
+    "status": "401",
+    "statusDescription": "Unauthorized",
+    "body": body,
+    "headers": {
+       "set-cookie" : [{
+         "key": "Set-Cookie",
+         "value" : cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
        }],
     },
   };
@@ -179,9 +183,9 @@ function unauthorized(body, callback) {
 
 function internalServerError(body, callback) {
   const response = {
-    status: '500',
-    statusDescription: 'Internal Server Error',
-    body: body,
+    "status": "500",
+    "statusDescription": "Internal Server Error",
+    "body": body,
   };
   callback(null, response);
 }

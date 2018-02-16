@@ -49,17 +49,17 @@ function mainProcess(event, context, callback) {
                   /** Set cookie upon verified membership */
                   if (response.status == 204) {
                     const nextLocation = {
-                      status: '302',
-                      statusDescription: 'Found',
-                      body: 'ID token retrieved.',
-                      headers: {
-                        location : [{
-                          key: 'Location',
-                          value: queryDict.state
+                      "status": "302",
+                      "statusDescription": "Found",
+                      "body": "ID token retrieved.",
+                      "headers": {
+                        "location" : [{
+                          "key": "Location",
+                          "value": queryDict.state
                         }],
-                        'set-cookie' : [{
-                          key: 'Set-Cookie',
-                          value : cookie.serialize('TOKEN', jwt.sign(
+                        "set-cookie" : [{
+                          "key": "Set-Cookie",
+                          "value" : cookie.serialize('TOKEN', jwt.sign(
                             { },
                             config.PRIVATE_KEY.trim(),
                             {
@@ -119,18 +119,18 @@ function redirect(request, headers, callback) {
   var querystring = qs.stringify(config.AUTH_REQUEST);
 
   const response = {
-    status: '302',
-    statusDescription: 'Found',
-    body: 'Redirecting to OAuth2 provider',
+    status: "302",
+    statusDescription: "Found",
+    body: "Redirecting to OAuth2 provider",
     headers: {
-        location : [{
-            key: 'Location',
-            value: config.AUTHORIZATION_ENDPOINT + '?' + querystring
-         }],
-         'set-cookie' : [{
-           key: 'Set-Cookie',
-           value : cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
-         }],
+      "location" : [{
+        "key": "Location",
+        "value": discoveryDocument.authorization_endpoint + '?' + querystring
+      }],
+      "set-cookie" : [{
+        "key": "Set-Cookie",
+        "value" : cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
+      }],
     },
   };
   callback(null, response);
@@ -138,13 +138,13 @@ function redirect(request, headers, callback) {
 
 function unauthorized(body, callback) {
   const response = {
-    status: '401',
-    statusDescription: 'Unauthorized',
-    body: body,
-    headers: {
-       'set-cookie' : [{
-         key: 'Set-Cookie',
-         value : cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
+    "status": "401",
+    "statusDescription": "Unauthorized",
+    "body": body,
+    "headers": {
+       "set-cookie" : [{
+         "key": "Set-Cookie",
+         "value" : cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
        }],
     },
   };
@@ -153,9 +153,9 @@ function unauthorized(body, callback) {
 
 function internalServerError(body, callback) {
   const response = {
-    status: '500',
-    statusDescription: 'Internal Server Error',
-    body: body,
+    "status": "500",
+    "statusDescription": "Internal Server Error",
+    "body": body,
   };
   callback(null, response);
 }
