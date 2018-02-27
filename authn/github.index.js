@@ -125,7 +125,7 @@ function redirect(request, headers, callback) {
     headers: {
       "location" : [{
         "key": "Location",
-        "value": discoveryDocument.authorization_endpoint + '?' + querystring
+        "value": config.AUTHORIZATION_ENDPOINT + '?' + querystring
       }],
       "set-cookie" : [{
         "key": "Set-Cookie",
