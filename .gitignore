@@ -8,3 +8,5 @@ google-authz.json
 auth.js
 /index.js
 /.idea
+distributions/*
+!distributions/.gitkeep

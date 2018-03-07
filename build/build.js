@@ -13,13 +13,23 @@ prompt.message = colors.blue(">");
 prompt.start();
 prompt.get({
   properties: {
+    distribution: {
+      message: colors.red("Enter distribution name"),
+      required: true
+    },
     method: {
       description: colors.red("Authentication methods:\n    (1) Google\n    (2) Microsoft\n    (3) GitHub\n    (4) Custom\n\n    Select an authentication method")
     }
   }
 }, function (err, result) {
-  if (fs.existsSync('./config.json')) {
-    oldConfig = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+  config.DISTRIBUTION = result.distribution;
+  shell.mkdir('-p', 'distributions/' + config.DISTRIBUTION);  
+  if (fs.existsSync('./distributions/' + config.DISTRIBUTION + '/config.json')) {
+    oldConfig = JSON.parse(fs.readFileSync('./distributions/' + config.DISTRIBUTION + '/config.json', 'utf8'));
+  }
+  if (!fs.existsSync('./distributions/' + config.DISTRIBUTION + '/id_rsa') || !fs.existsSync('./distributions/' + config.DISTRIBUTION + '/id_rsa.pub')) {
+    shell.exec("ssh-keygen -t rsa -b 4096 -f ./distributions/" + config.DISTRIBUTION + "/id_rsa -N ''");
+    shell.exec("openssl rsa -in ./distributions/" + config.DISTRIBUTION + "/id_rsa -pubout -outform PEM -out ./distributions/" + config.DISTRIBUTION + "/id_rsa.pub");
   }
   switch (result.method) {
     case '1':
@@ -91,8 +101,8 @@ function microsoftConfiguration() {
       }
     }
   }, function(err, result) {
-    config.PRIVATE_KEY = fs.readFileSync('build/id_rsa', 'utf8');
-    config.PUBLIC_KEY = fs.readFileSync('build/id_rsa.pub', 'utf8');
+    config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
+    config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
     config.DISCOVERY_DOCUMENT = 'https://login.microsoftonline.com/' + result.TENANT + '/.well-known/openid-configuration';
     config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10);
 
@@ -109,16 +119,16 @@ function microsoftConfiguration() {
     config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
 
-    shell.cp('./authz/microsoft.js', './auth.js');
+    shell.cp('./authz/microsoft.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
     shell.cp('./authn/openid.index.js', './index.js');
     switch (result.AUTHZ) {
       case '1':
-        shell.cp('./authz/microsoft.js', './auth.js');
+        shell.cp('./authz/microsoft.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
         writeConfig(config, zipDefault);
-        shell.exec('zip -q cloudfront-auth.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
+        shell.exec('zip -q distributions/' + config.DISTRIBUTION + '/' + config.DISTRIBUTION + '.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
         break;
       case '2':
-        shell.cp('./authz/microsoft.json-username-lookup.js', './auth.js');
+        shell.cp('./authz/microsoft.json-username-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
         prompt.start();
         prompt.message = colors.blue(">>>");
         prompt.get({
@@ -176,8 +186,8 @@ function googleConfiguration() {
       }
     }
   }, function(err, result) {
-    config.PRIVATE_KEY = fs.readFileSync('build/id_rsa', 'utf8');
-    config.PUBLIC_KEY = fs.readFileSync('build/id_rsa.pub', 'utf8');
+    config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
+    config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
     config.DISCOVERY_DOCUMENT = 'https://accounts.google.com/.well-known/openid-configuration';
     config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10);
 
@@ -195,15 +205,15 @@ function googleConfiguration() {
     config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
 
-    shell.cp('./authn/openid.index.js', './index.js');
+    shell.cp('./authn/openid.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
     switch (result.AUTHZ) {
       case '1':
-        shell.cp('./authz/google.hosted-domain.js', './auth.js');
+        shell.cp('./authz/google.hosted-domain.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
         writeConfig(config, zipDefault);
-        shell.exec('zip -q cloudfront-auth.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
+        shell.exec('zip -q distributions/' + config.DISTRIBUTION + '/' + config.DISTRIBUTION + '.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
         break;
       case '2':
-        shell.cp('./authz/google.json-email-lookup.js', './auth.js');
+        shell.cp('./authz/google.json-email-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
         prompt.start();
         prompt.message = colors.blue(">>>");
         prompt.get({
@@ -246,7 +256,7 @@ function googleGroupsConfiguration() {
       if (!googleAuthz.hasOwnProperty('cloudfront_authz_groups')) {
         console.log('google-authz.json is missing cloudfront_authz_groups. Stopping build...');
       } else {
-        shell.cp('./authz/google.groups-lookup.js', './auth.js');
+        shell.cp('./authz/google.groups-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
         config.SERVICE_ACCOUNT_EMAIL = result.SERVICE_ACCOUNT_EMAIL;
         writeConfig(config, zipGoogleGroups);
       }
@@ -291,8 +301,8 @@ function githubConfiguration() {
     axios.get('https://api.github.com/orgs/' + result.ORGANIZATION)
       .then(function (response) {
         if (response.status == 200) {
-          config.PRIVATE_KEY = fs.readFileSync('build/id_rsa', 'utf8');
-          config.PUBLIC_KEY = fs.readFileSync('build/id_rsa.pub', 'utf8');
+          config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
+          config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
           config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10);
           config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
           config.ORGANIZATION = result.ORGANIZATION;
@@ -307,8 +317,8 @@ function githubConfiguration() {
           config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
           config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
 
-          shell.cp('./authz/github.membership-lookup.js', './auth.js');
-          shell.cp('./authn/github.index.js', './index.js');
+          shell.cp('./authz/github.membership-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
+          shell.cp('./authn/github.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
           writeConfig(config, zipDefault);
         } else {
           console.log("Organization could not be verified (code " + response.status + "). Stopping build...");
@@ -321,16 +331,16 @@ function githubConfiguration() {
 }
 
 function zipDefault() {
-  shell.exec('zip -q cloudfront-auth.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
+  shell.exec('zip -q distributions/' + config.DISTRIBUTION + '/' + config.DISTRIBUTION + '.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
   // Prompt user for tests
 }
 
 function zipGoogleGroups() {
-  shell.exec('zip -q cloudfront-auth.zip config.json index.js package-lock.json package.json auth.js google-authz.json -r node_modules');
+  shell.exec('zip -q distributions/' + config.DISTRIBUTION + '/' + config.DISTRIBUTION + '.zip config.json index.js package-lock.json package.json auth.js google-authz.json -r node_modules');
 }
 
 function writeConfig(result, callback) {
-  fs.writeFile('config.json', JSON.stringify(result, null, 4), (err) => {
+  fs.writeFile('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4), (err) => {
     if (err) throw err;
     callback();
   });
