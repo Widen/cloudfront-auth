@@ -125,7 +125,6 @@ function microsoftConfiguration() {
       case '1':
         shell.cp('./authz/microsoft.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
         writeConfig(config, zipDefault);
-        shell.exec('zip -q distributions/' + config.DISTRIBUTION + '/' + config.DISTRIBUTION + '.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
         break;
       case '2':
         shell.cp('./authz/microsoft.json-username-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
@@ -210,7 +209,6 @@ function googleConfiguration() {
       case '1':
         shell.cp('./authz/google.hosted-domain.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
         writeConfig(config, zipDefault);
-        shell.exec('zip -q distributions/' + config.DISTRIBUTION + '/' + config.DISTRIBUTION + '.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
         break;
       case '2':
         shell.cp('./authz/google.json-email-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
@@ -332,11 +330,12 @@ function githubConfiguration() {
 
 function zipDefault() {
   shell.exec('zip -q distributions/' + config.DISTRIBUTION + '/' + config.DISTRIBUTION + '.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
-  // Prompt user for tests
+  console.log(colors.green("Done... created Lambda function distributions/" + config.DISTRIBUTION + "/" + config.DISTRIBUTION + ".zip"));
 }
 
 function zipGoogleGroups() {
   shell.exec('zip -q distributions/' + config.DISTRIBUTION + '/' + config.DISTRIBUTION + '.zip config.json index.js package-lock.json package.json auth.js google-authz.json -r node_modules');
+  console.log(colors.green("Done... created Lambda function distributions/" + config.DISTRIBUTION + "/" + config.DISTRIBUTION + ".zip"))
 }
 
 function writeConfig(result, callback) {
