@@ -74,7 +74,8 @@ function microsoftConfiguration() {
     properties: {
       TENANT: {
         message: colors.red("Tenant"),
-        required: true
+        required: true,
+        default: R.pathOr('', ['TENANT'], oldConfig)
       },
       CLIENT_ID: {
         message: colors.red("Client ID"),
@@ -103,6 +104,7 @@ function microsoftConfiguration() {
   }, function(err, result) {
     config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
     config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
+    config.TENANT = result.TENANT;    
     config.DISCOVERY_DOCUMENT = 'https://login.microsoftonline.com/' + result.TENANT + '/.well-known/openid-configuration';
     config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
 
@@ -329,12 +331,12 @@ function githubConfiguration() {
 }
 
 function zipDefault() {
-  shell.exec('zip -q distributions/' + config.DISTRIBUTION + '/' + config.DISTRIBUTION + '.zip config.json index.js package-lock.json package.json auth.js -r node_modules');
+  shell.exec('cd distributions/' + config.DISTRIBUTION + ' && zip -q ' + config.DISTRIBUTION + '.zip config.json index.js ../../package-lock.json ../../package.json auth.js -r ../../node_modules');
   console.log(colors.green("Done... created Lambda function distributions/" + config.DISTRIBUTION + "/" + config.DISTRIBUTION + ".zip"));
 }
 
 function zipGoogleGroups() {
-  shell.exec('zip -q distributions/' + config.DISTRIBUTION + '/' + config.DISTRIBUTION + '.zip config.json index.js package-lock.json package.json auth.js google-authz.json -r node_modules');
+  shell.exec('cd distributions/' + config.DISTRIBUTION + ' && zip -q distributions/' + config.DISTRIBUTION + '.zip config.json index.js ../../package-lock.json ../../package.json auth.js ../../google-authz.json -r ../../node_modules');
   console.log(colors.green("Done... created Lambda function distributions/" + config.DISTRIBUTION + "/" + config.DISTRIBUTION + ".zip"))
 }
 
