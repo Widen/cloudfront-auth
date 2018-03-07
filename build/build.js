@@ -123,6 +123,9 @@ function microsoftConfiguration() {
 
     shell.cp('./authz/microsoft.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
     shell.cp('./authn/openid.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
+
+    fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
+
     switch (result.AUTHZ) {
       case '1':
         shell.cp('./authz/microsoft.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
@@ -207,6 +210,9 @@ function googleConfiguration() {
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
 
     shell.cp('./authn/openid.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
+
+    fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
+
     switch (result.AUTHZ) {
       case '1':
         shell.cp('./authz/google.hosted-domain.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
@@ -229,7 +235,27 @@ function googleConfiguration() {
         });
         break;
       case '3':
-        googleGroupsConfiguration();
+        prompt.start();
+        prompt.message = colors.blue(">>>");
+        prompt.get({
+          properties: { 
+            MOVE: {
+              message: colors.red("Place ") + colors.blue("google-authz.json") + colors.red(" file into ") + colors.blue("distributions/" + config.DISTRIBUTION) + colors.red(" folder. Press enter when done")
+            }
+          }
+        }, function (err, result) {
+          if (!shell.test('-f', 'distributions/' + config.DISTRIBUTION + '/google-authz.json')) {
+            console.log('Need google-authz.json to use google groups authentication. Stopping build...');
+          } else {
+            var googleAuthz = JSON.parse(fs.readFileSync('distributions/' + config.DISTRIBUTION + '/google-authz.json'));
+            if (!googleAuthz.hasOwnProperty('cloudfront_authz_groups')) {
+              console.log('google-authz.json is missing cloudfront_authz_groups. Stopping build...');
+            } else {
+              shell.cp('./authz/google.groups-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
+              googleGroupsConfiguration();                    
+            }
+          }
+        });
         break;
       default:
         console.log("Method not recognized. Stopping build...");
@@ -249,18 +275,8 @@ function googleGroupsConfiguration() {
       }
     }
   }, function (err, result) {
-    if (!shell.test('-f', './google-authz.json')) {
-      console.log('Need google-authz.json to use google groups authentication. Stopping build...');
-    } else {
-      var googleAuthz = JSON.parse(fs.readFileSync('./google-authz.json'));
-      if (!googleAuthz.hasOwnProperty('cloudfront_authz_groups')) {
-        console.log('google-authz.json is missing cloudfront_authz_groups. Stopping build...');
-      } else {
-        shell.cp('./authz/google.groups-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
-        config.SERVICE_ACCOUNT_EMAIL = result.SERVICE_ACCOUNT_EMAIL;
-        writeConfig(config, zipGoogleGroups);
-      }
-    }
+    config.SERVICE_ACCOUNT_EMAIL = result.SERVICE_ACCOUNT_EMAIL;
+    writeConfig(config, zipGoogleGroups);
   });
 }
 
@@ -336,7 +352,7 @@ function zipDefault() {
 }
 
 function zipGoogleGroups() {
-  shell.exec('cd distributions/' + config.DISTRIBUTION + ' && zip -q ' + config.DISTRIBUTION + '.zip config.json index.js ../../package-lock.json ../../package.json auth.js ../../google-authz.json -r ../../node_modules');
+  shell.exec('cd distributions/' + config.DISTRIBUTION + ' && zip -q ' + config.DISTRIBUTION + '.zip config.json index.js ../../package-lock.json ../../package.json auth.js google-authz.json -r ../../node_modules');
   console.log(colors.green("Done... created Lambda function distributions/" + config.DISTRIBUTION + "/" + config.DISTRIBUTION + ".zip"))
 }
 
