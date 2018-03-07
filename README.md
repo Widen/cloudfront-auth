@@ -19,7 +19,7 @@ Session duration is defined as the number of hours that the JWT is valid for. Af
 1. Execute `npm run-script build` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
     1. Choose `Github` as the authorization method and enter the values for Client ID, Client Secret, Redirect URI, Session Duration and Organization
         -  cloudfront-auth will check that users are a member of the entered Organization.
-1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
+1. Upload the resulting `zip` file found in your distribution folder using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
 
 #### Login using Google
 
@@ -37,7 +37,7 @@ Session duration is defined as the number of hours that the JWT is valid for. Af
         1. Enter your JSON Email Lookup URL (example below) that consists of a single JSON array of emails to search through
     1. Google Groups Lookup
         1. [Use Google Groups to authorize users](https://github.com/Widen/cloudfront-auth/wiki/Google-Groups-Setup)
-1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
+1. Upload the resulting `zip` file found in your distribution folder using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
 
 #### Login using Microsoft Azure
 
@@ -52,7 +52,7 @@ Session duration is defined as the number of hours that the JWT is valid for. Af
     1. Azure AD Membership (default)
     1. JSON Username Lookup
         1. Enter your JSON Username Lookup URL (example below) that consists of a single JSON array of usernames to search through
-1. Upload the resulting `cloudfront-auth.zip` file using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
+1. Upload the resulting `zip` file found in your distribution folder using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
 
 ### Configure Lambda and CloudFront
 
