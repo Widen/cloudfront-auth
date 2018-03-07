@@ -122,7 +122,7 @@ function microsoftConfiguration() {
     config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
 
     shell.cp('./authz/microsoft.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
-    shell.cp('./authn/openid.index.js', './index.js');
+    shell.cp('./authn/openid.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
     switch (result.AUTHZ) {
       case '1':
         shell.cp('./authz/microsoft.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
@@ -336,7 +336,7 @@ function zipDefault() {
 }
 
 function zipGoogleGroups() {
-  shell.exec('cd distributions/' + config.DISTRIBUTION + ' && zip -q distributions/' + config.DISTRIBUTION + '.zip config.json index.js ../../package-lock.json ../../package.json auth.js ../../google-authz.json -r ../../node_modules');
+  shell.exec('cd distributions/' + config.DISTRIBUTION + ' && zip -q ' + config.DISTRIBUTION + '.zip config.json index.js ../../package-lock.json ../../package.json auth.js ../../google-authz.json -r ../../node_modules');
   console.log(colors.green("Done... created Lambda function distributions/" + config.DISTRIBUTION + "/" + config.DISTRIBUTION + ".zip"))
 }
 
