@@ -92,9 +92,9 @@ function microsoftConfiguration() {
         default: R.pathOr('', ['AUTH_REQUEST', 'redirect_uri'], oldConfig)
       },
       SESSION_DURATION: {
-        message: colors.red("Session Duration (seconds)"),
+        message: colors.red("Session Duration (hours)"),
         required: true,
-        default: R.pathOr('', ['SESSION_DURATION'], oldConfig)
+        default: R.pathOr('', ['SESSION_DURATION'], oldConfig)/60/60
       },
       AUTHZ: {
         description: colors.red("Authorization methods:\n   (1) Azure AD Login (default)\n   (2) JSON Username Lookup\n\n   Select an authorization method")
@@ -104,7 +104,7 @@ function microsoftConfiguration() {
     config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
     config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
     config.DISCOVERY_DOCUMENT = 'https://login.microsoftonline.com/' + result.TENANT + '/.well-known/openid-configuration';
-    config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10);
+    config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
 
     config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
 
@@ -176,10 +176,10 @@ function googleConfiguration() {
       },
       SESSION_DURATION: {
         pattern: /^[0-9]*$/,
-        description: colors.red("Session Duration (seconds)"),
+        description: colors.red("Session Duration (hours)"),
         message: colors.green("Entry must only contain numbers"),
         required: true,
-        default: R.pathOr('', ['SESSION_DURATION'], oldConfig)
+        default: R.pathOr('', ['SESSION_DURATION'], oldConfig)/60/60
       },
       AUTHZ: {
         description: colors.red("Authorization methods:\n   (1) Hosted Domain - verify email's domain matches that of the given hosted domain\n   (2) HTTP Email Lookup - verify email exists in JSON array located at given HTTP endpoint\n   (3) Google Groups Lookup - verify email exists in one of given Google Groups\n\n   Select an authorization method")
@@ -189,7 +189,7 @@ function googleConfiguration() {
     config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
     config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
     config.DISCOVERY_DOCUMENT = 'https://accounts.google.com/.well-known/openid-configuration';
-    config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10);
+    config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
 
     config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
     config.HOSTED_DOMAIN = result.HD;
@@ -286,10 +286,10 @@ function githubConfiguration() {
       },
       SESSION_DURATION: {
         pattern: /^[0-9]*$/,
-        description: colors.red("Session Duration (seconds)"),
+        description: colors.red("Session Duration (hours)"),
         message: colors.green("Entry must only contain numbers"),
         required: true,
-        default: R.pathOr('', ['SESSION_DURATION'], oldConfig)
+        default: R.pathOr('', ['SESSION_DURATION'], oldConfig)/60/60
       },
       ORGANIZATION: {
         description: colors.red("Organization"),
@@ -303,7 +303,7 @@ function githubConfiguration() {
         if (response.status == 200) {
           config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
           config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
-          config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10);
+          config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
           config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
           config.ORGANIZATION = result.ORGANIZATION;
           config.AUTHORIZATION_ENDPOINT = 'https://github.com/login/oauth/authorize';
