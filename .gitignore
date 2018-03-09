@@ -10,3 +10,6 @@ auth.js
 /.idea
 distributions/*
 !distributions/.gitkeep
+tests/logs/*
+!tests/logs/.gitkeep
+tests/config

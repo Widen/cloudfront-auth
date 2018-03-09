@@ -4,7 +4,7 @@
   "description": "An AWS Cloudfront Lambda@Edge function to authenticate requests using Google Apps, Microsoft, and GitHub login",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cd tests && npm install && cd .. && node tests/tests.js",
     "build": "npm install && cd build && npm install && cd .. && node build/build.js"
   },
   "author": "Widen Enterprises",
@@ -16,6 +16,7 @@
     "jsonwebtoken": "^8.1.0",
     "jwk-to-pem": "^1.2.6",
     "nonce": "^1.0.4",
+    "querystring": "^0.2.0",
     "url": "^0.11.0"
   }
 }
