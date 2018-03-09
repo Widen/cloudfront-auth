@@ -16,7 +16,7 @@ Session duration is defined as the number of hours that the JWT is valid for. Af
 1. Navigate to your organization's [profile page](https://github.com/settings/profile), then choose OAuth Apps under Developer settings.
     1. Select **New OAuth App**
     1. For **Authorization callback URL** enter your Cloudfront hostname with your preferred path value for the authorization callback. Example: `https://my-cloudfront-site.example.com/_callback`
-1. Execute `npm run-script build` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
+1. Execute `./build.sh` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
     1. Choose `Github` as the authorization method and enter the values for Client ID, Client Secret, Redirect URI, Session Duration and Organization
         -  cloudfront-auth will check that users are a member of the entered Organization.
 1. Upload the resulting `zip` file found in your distribution folder using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
@@ -29,7 +29,7 @@ Session duration is defined as the number of hours that the JWT is valid for. Af
     1. Create an **OAuth Client ID** from the **Create credentials** menu
     1. Select **Web application** for the Application type
     1. Under **Authorized redirect URIs**, enter your Cloudfront hostname with your preferred path value for the authorization callback. Example: `https://my-cloudfront-site.example.com/_callback`
-1. Execute `npm run-script build` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
+1. Execute `./build.sh` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
 1. Choose `Google` as the authorization method and enter the values for Client ID, Client Secret, Redirect URI, Hosted Domain and Session Duration
 1. Select the preferred authentication method
     1. Hosted Domain (verify email's domain matches that of the given hosted domain) 
@@ -46,7 +46,7 @@ Session duration is defined as the number of hours that the JWT is valid for. Af
     1. Create a new application registration with an application type of **Web app / api**
     1. Once created, go to your application `Settings -> Keys` and make a new key with your desired duration. Click save and copy the value. This will be your `client_secret`
     1. Above where you selected `Keys`, go to `Reply URLs` and enter your Cloudfront hostname with your preferred path value for the authorization callback. Example: https://my-cloudfront-site.example.com/_callback
-1. Execute `npm run-script build` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
+1. Execute `./build.sh` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
 1. Choose `Microsoft` as the authorization method and enter the values for [Tenant](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-howto-tenant), Client ID (**Application ID**), Client Secret (**previously created key**), Redirect URI and Session Duration 
 1. Select the preferred authentication method
     1. Azure AD Membership (default)
