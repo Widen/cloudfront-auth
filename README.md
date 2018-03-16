@@ -93,6 +93,8 @@ Session duration is defined as the number of hours that the JWT is valid for. Af
     ```
     [ "foo@gmail.com", "bar@gmail.com" ]
     ```
+## Testing
+Detailed instructions on testing your function can be found [in the Wiki](https://github.com/Widen/cloudfront-auth/wiki/Debug-&-Test).
 
 ## Build Requirements
  - [npm](https://www.npmjs.com/) ^5.6.0
