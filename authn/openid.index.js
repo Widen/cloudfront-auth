@@ -46,10 +46,11 @@ function mainProcess(event, context, callback) {
   const headers = request.headers;
   const queryDict = qs.parse(request.querystring);
   if (event.Records[0].cf.config.hasOwnProperty('test')) {
-    config.AUTH_REQUEST.redirect_uri = event.Records[0].cf.config.test;
-    config.TOKEN_REQUEST.redirect_uri = event.Records[0].cf.config.test;
+    config.AUTH_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
+    config.TOKEN_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
   }
   if (request.uri.startsWith(config.CALLBACK_PATH)) {
+    console.log("Callback from OIDC provider received");
     /** Verify code is in querystring */
     if (!queryDict.code) {
       unauthorized("No code found.", callback);
@@ -57,10 +58,12 @@ function mainProcess(event, context, callback) {
     config.TOKEN_REQUEST.code = queryDict.code;
     /** Exchange code for authorization token */
     const postData = qs.stringify(config.TOKEN_REQUEST);
+    console.log("Requesting access token.");
     axios.post(discoveryDocument.token_endpoint, postData)
       .then(function(response) {
         const decodedData = jwt.decode(response.data.id_token, {complete: true});
         try {
+          console.log("Searching for JWK from discovery document");
           // Search for correct JWK from discovery document and create PEM
           var pem = "";
           for (var i = 0; i < jwks.keys.length; i++) {
@@ -68,20 +71,25 @@ function mainProcess(event, context, callback) {
               pem = jwkToPem(jwks.keys[i]);
             }
           }
+          console.log("Verifying JWT");
           // Verify the JWT, the payload email, and that the email ends with configured hosted domain
           jwt.verify(response.data.id_token, pem, { algorithms: ['RS256'] }, function(err, decoded) {
             if (err) {
               switch (err.name) {
                 case 'TokenExpiredError':
+                  console.log("Token expired, redirecting to OIDC provider.");
                   redirect(request, headers, callback)
                   break;
                 case 'JsonWebTokenError':
+                  console.log("JWT error, unauthorized.");
                   unauthorized('JsonWebTokenError: ' + err.message, callback);
                   break;
                 default:
+                  console.log("Unknown JWT error, unauthorized.");
                   unauthorized('Unauthorized. User ' + decodedData.payload.email + ' is not permitted.', callback);
               }
             } else {
+              console.log("Setting cookie and redirecting.");
               // Once verified, create new JWT for this server
               const response = {
                 "status": "302",
@@ -90,7 +98,7 @@ function mainProcess(event, context, callback) {
                 "headers": {
                   "location" : [{
                     "key": "Location",
-                    "value": queryDict.state
+                    "value": event.Records[0].cf.config.hasOwnProperty('test') ? (config.AUTH_REQUEST.redirect_uri + queryDict.state) : queryDict.state
                   }],
                   "set-cookie" : [{
                     "key": "Set-Cookie",
@@ -119,24 +127,30 @@ function mainProcess(event, context, callback) {
       });
   } else if ("cookie" in headers
               && "TOKEN" in cookie.parse(headers["cookie"][0].value)) {
+    console.log("Request received with TOKEN cookie. Validating.");
     // Verify the JWT, the payload email, and that the email ends with configured hosted domain
     jwt.verify(cookie.parse(headers["cookie"][0].value).TOKEN, config.PUBLIC_KEY.trim(), { algorithms: ['RS256'] }, function(err, decoded) {
       if (err) {
         switch (err.name) {
           case 'TokenExpiredError':
+            console.log("Token expired, redirecting to OIDC provider.");
             redirect(request, headers, callback)
             break;
           case 'JsonWebTokenError':
+            console.log("JWT error, unauthorized.");
             unauthorized(err.message, callback);
             break;
           default:
+            console.log("Unknown JWT error, unauthorized.");
             unauthorized('Unauthorized. User ' + decoded.sub + ' is not permitted.', callback);
         }
       } else {
+        console.log("Authorizing user.");
         auth.isAuthorized(decoded, request, callback, unauthorized, internalServerError, config);
       }
     });
   } else {
+    console.log("Redirecting to OIDC provider.");
     redirect(request, headers, callback);
   }
 }

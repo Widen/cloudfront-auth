@@ -19,7 +19,12 @@ function mainProcess(event, context, callback) {
   const request = event.Records[0].cf.request;
   const headers = request.headers;
   const queryDict = qs.parse(request.querystring);
+  if (event.Records[0].cf.config.hasOwnProperty('test')) {
+    config.AUTH_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
+    config.TOKEN_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
+  }
   if (request.uri.startsWith(config.CALLBACK_PATH)) {
+    console.log("Callback from GitHub received");
     /** Verify code is in querystring */
     if (!queryDict.code || !queryDict.state) {
       unauthorized("No code or state found.", callback);
@@ -28,6 +33,7 @@ function mainProcess(event, context, callback) {
     config.TOKEN_REQUEST.state = queryDict.state;
     /** Exchange code for authorization token */
     const postData = qs.stringify(config.TOKEN_REQUEST);
+    console.log("Requesting access token.");
     axios.post(config.TOKEN_ENDPOINT, postData)
       .then(function(response) {
         var responseQueryString = qs.parse(response.data);
@@ -44,10 +50,12 @@ function mainProcess(event, context, callback) {
               }
               var username = response.data.login;
               var orgsGet = 'https://api.github.com/orgs/' + config.ORGANIZATION + '/members/' + username;
+              console.log("Checking ORG membership.");
               axios.get(orgsGet, { headers: {'Authorization': authorization} })
                 .then(function(response) {
                   /** Set cookie upon verified membership */
                   if (response.status == 204) {
+                    console.log("Setting cookie and redirecting.");
                     const nextLocation = {
                       "status": "302",
                       "statusDescription": "Found",
@@ -55,7 +63,7 @@ function mainProcess(event, context, callback) {
                       "headers": {
                         "location" : [{
                           "key": "Location",
-                          "value": queryDict.state
+                          "value": event.Records[0].cf.config.hasOwnProperty('test') ? (config.AUTH_REQUEST.redirect_uri + queryDict.state) : queryDict.state
                         }],
                         "set-cookie" : [{
                           "key": "Set-Cookie",
@@ -74,6 +82,7 @@ function mainProcess(event, context, callback) {
                     };
                     callback(null, nextLocation);
                   } else {
+                    console.log("User not a member of required ORG. Unauthorized.");
                     unauthorized('Unauthorized. User ' + response.login + ' is not a member of required organization.', callback);
                   }
                 })
@@ -96,19 +105,24 @@ function mainProcess(event, context, callback) {
       if (err) {
         switch (err.name) {
           case 'TokenExpiredError':
+            console.log("Token expired, redirecting to OIDC provider.");
             redirect(request, headers, callback);
             break;
           case 'JsonWebTokenError':
+            console.log("JWT error, unauthorized.");
             unauthorized(err.message, callback);
             break;
           default:
+            console.log("Unknown JWT error, unauthorized.");
             unauthorized('Unauthorized. User ' + decoded.sub + ' is not permitted.', callback);
         }
       } else {
+        console.log("Authorizing user.");
         auth.isAuthorized(decoded, request, callback, unauthorized, internalServerError, config);
       }
     });
   } else {
+    console.log("Redirecting to GitHub.");
     redirect(request, headers, callback);
   }
 }

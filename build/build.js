@@ -18,7 +18,7 @@ prompt.get({
       required: true
     },
     method: {
-      description: colors.red("Authentication methods:\n    (1) Google\n    (2) Microsoft\n    (3) GitHub\n    (4) Custom\n\n    Select an authentication method")
+      description: colors.red("Authentication methods:\n    (1) Google\n    (2) Microsoft\n    (3) GitHub\n\n    Select an authentication method")
     }
   }
 }, function (err, result) {
@@ -53,14 +53,6 @@ prompt.get({
       config.AUTHN = "GITHUB";
       githubConfiguration();
       break;
-    case '4':
-      if (R.pathOr('', ['AUTHN'], oldConfig) != "UNKNOWN") {
-        oldConfig = undefined;
-      }
-      config.AUTHN = "UNKNOWN";
-      //customConfiguration();
-      console.log("Custom configuration not yet supported. Stopping build...");
-      process.exit(1);
     default:
       console.log("Method not recognized. Stopping build...");
       process.exit(1);
@@ -120,6 +112,8 @@ function microsoftConfiguration() {
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
     config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
+
+    config.AUTHZ = result.AUTHZ;
 
     shell.cp('./authz/microsoft.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
     shell.cp('./authn/openid.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
@@ -208,6 +202,8 @@ function googleConfiguration() {
     config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
     config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
+
+    config.AUTHZ = result.AUTHZ;
 
     shell.cp('./authn/openid.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
 
