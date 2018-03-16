@@ -5,6 +5,7 @@ const colors = require('colors/safe');
 const http = require('http');
 const url = require('url');
 const qs = require('querystring');
+const shell = require('shelljs');
 var beautify = require('json-beautify');
 var ngrok = require('ngrok');
 var dateFormat = require('dateformat');
@@ -19,9 +20,11 @@ if(!fs.existsSync("distributions/" + DISTRIBUTION)) {
   process.exit();
 }
 
-// Check for test-config.json
-if(!fs.existsSync("distributions/" + DISTRIBUTION + "/test-config.json")) {
-  console.log(colors.red("test-config.json does not exist in '" + DISTRIBUTION + "'. Add test-config.json and restart. Stopping test..."));
+shell.mkdir('-p', 'distributions/' + DISTRIBUTION + "/logs");  
+
+// Check for config-test.json
+if(!fs.existsSync("distributions/" + DISTRIBUTION + "/config-test.json")) {
+  console.log(colors.red("config-test.json does not exist in '" + DISTRIBUTION + "'. Add config-test.json and restart. Stopping test..."));
   process.exit();
 }
 
@@ -123,7 +126,7 @@ function setupRedirect(url, lambdaFunction) {
     }
 
     // Update log
-    fs.writeFileSync('tests/logs/' + logName + '.log', "*/ Initial Request Payload /*\n" + beautify(JSON.parse(params.Payload), null, 2, 80));
+    fs.writeFileSync('distributions/' + DISTRIBUTION + '/logs/' + logName + '.log', "*/ Initial Request Payload /*\n" + beautify(JSON.parse(params.Payload), null, 2, 80));
 
     // Invoke lambda
     lambda.invoke(params, function(err, data) {
@@ -131,7 +134,7 @@ function setupRedirect(url, lambdaFunction) {
         console.log(err, err.stack);
       } else {
         // Update log
-        fs.appendFileSync('tests/logs/' + logName + '.log', "\n*/ Initial Request Response /*\nStatus Code: " + data.StatusCode + "\nExecuted Version: " + data.ExecutedVersion + "\nLog Result:\n" + new Buffer(data.LogResult, 'base64').toString('ascii') + "\nPayload:\n" + beautify(JSON.parse(data.Payload), null, 2, 80));
+        fs.appendFileSync('distributions/' + DISTRIBUTION + '/logs/' + logName + '.log', "\n*/ Initial Request Response /*\nStatus Code: " + data.StatusCode + "\nExecuted Version: " + data.ExecutedVersion + "\nLog Result:\n" + new Buffer(data.LogResult, 'base64').toString('ascii') + "\nPayload:\n" + beautify(JSON.parse(data.Payload), null, 2, 80));
         var payload = JSON.parse(data.Payload);
         console.log(payload.headers.location[0].value);
         opn(payload.headers.location[0].value);
@@ -155,7 +158,7 @@ function setupRedirect(url, lambdaFunction) {
           }
 
           // Update log
-          fs.appendFileSync('tests/logs/' + logName + '.log', "\n\n*/ Callback Payload /*\n" + beautify(JSON.parse(params.Payload), null, 2, 80));
+          fs.appendFileSync('distributions/' + DISTRIBUTION + '/logs/' + logName + '.log', "\n\n*/ Callback Payload /*\n" + beautify(JSON.parse(params.Payload), null, 2, 80));
 
           // Invoke lambda
           lambda.invoke(params, function(err, data) {
@@ -163,7 +166,7 @@ function setupRedirect(url, lambdaFunction) {
               console.log(err, err.stack);
             } else {
               // Update log
-              fs.appendFileSync('tests/logs/' + logName + '.log', "\n*/ Callback Response /*\nStatus Code: " + data.StatusCode + "\nExecuted Version: " + data.ExecutedVersion + "\nLog Result:\n" + new Buffer(data.LogResult, 'base64').toString('ascii') + "\nPayload:\n" + beautify(JSON.parse(data.Payload), null, 2, 80));
+              fs.appendFileSync('distributions/' + DISTRIBUTION + '/logs/' + logName + '.log', "\n*/ Callback Response /*\nStatus Code: " + data.StatusCode + "\nExecuted Version: " + data.ExecutedVersion + "\nLog Result:\n" + new Buffer(data.LogResult, 'base64').toString('ascii') + "\nPayload:\n" + beautify(JSON.parse(data.Payload), null, 2, 80));
 
               // Setup token lambda request
               var params = {
@@ -173,7 +176,7 @@ function setupRedirect(url, lambdaFunction) {
               }
 
               // Update log
-              fs.appendFileSync('tests/logs/' + logName + '.log', "\n\n*/ Token Payload /*\n" + beautify(JSON.parse(params.Payload), null, 2, 80));
+              fs.appendFileSync('distributions/' + DISTRIBUTION + '/logs/' + logName + '.log', "\n\n*/ Token Payload /*\n" + beautify(JSON.parse(params.Payload), null, 2, 80));
 
               // Invoke lambda
               lambda.invoke(params, function(err, data) {
@@ -181,11 +184,11 @@ function setupRedirect(url, lambdaFunction) {
                   console.log(err, err.stack);
                 } else {
                   // Update log                  
-                  fs.appendFileSync('tests/logs/' + logName + '.log', "\n*/ Token Response /*\nStatus Code: " + data.StatusCode + "\nExecuted Version: " + data.ExecutedVersion + "\nLog Result:\n" + new Buffer(data.LogResult, 'base64').toString('ascii') + "\nPayload:\n" + beautify(JSON.parse(data.Payload), null, 2, 80));
+                  fs.appendFileSync('distributions/' + DISTRIBUTION + '/logs/' + logName + '.log', "\n*/ Token Response /*\nStatus Code: " + data.StatusCode + "\nExecuted Version: " + data.ExecutedVersion + "\nLog Result:\n" + new Buffer(data.LogResult, 'base64').toString('ascii') + "\nPayload:\n" + beautify(JSON.parse(data.Payload), null, 2, 80));
                 }
 
                 // Notify user of test end and kill ngrok/local server
-                console.log(colors.green("Log created at /tests/logs/" + logName + ".log"));
+                console.log(colors.green("Log created at /distributions/" + DISTRIBUTION + "/logs/" + logName + ".log"));
                 server.close();
                 ngrok.disconnect();
                 ngrok.kill();
