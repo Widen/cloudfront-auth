@@ -16,7 +16,13 @@ let server;
 const DISTRIBUTION = process.argv.slice(2)[0];
 if(!fs.existsSync("distributions/" + DISTRIBUTION)) {
   console.log(colors.red("Distribution '" + DISTRIBUTION + "' does not exist. Stopping test..."));
-  exit(1);
+  process.exit();
+}
+
+// Check for test-config.json
+if(!fs.existsSync("distributions/" + DISTRIBUTION + "/test-config.json")) {
+  console.log(colors.red("test-config.json does not exist in '" + DISTRIBUTION + "'. Add test-config.json and restart. Stopping test..."));
+  process.exit();
 }
 
 // Load configs
