@@ -1,4 +1,4 @@
-[Google Apps (G Suite)](https://developers.google.com/identity/protocols/OpenIDConnect), [Microsoft Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code), and [GitHub](https://developer.github.com/apps/building-oauth-apps/authorization-options-for-oauth-apps/) authentication for [CloudFront](https://aws.amazon.com/cloudfront/) using [Lambda@Edge](http://docs.aws.amazon.com/lambda/latest/dg/lambda-edge.html). The primary use case for `cloudfront-auth` is to serve private S3 content over HTTPS without running a proxy server to authenticate requests.
+[Google Apps (G Suite)](https://developers.google.com/identity/protocols/OpenIDConnect), [Microsoft Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code), [GitHub](https://developer.github.com/apps/building-oauth-apps/authorization-options-for-oauth-apps/), and [OKTA](https://www.okta.com/) authentication for [CloudFront](https://aws.amazon.com/cloudfront/) using [Lambda@Edge](http://docs.aws.amazon.com/lambda/latest/dg/lambda-edge.html). The primary use case for `cloudfront-auth` is to serve private S3 content over HTTPS without running a proxy server to authenticate requests.
 
 ## Description
 Upon successful authentication, a cookie (named `TOKEN`) with the value of a signed JWT is set and the user redirected back to the originally requested path. Upon each request, Lambda@Edge checks the JWT for validity (signature, expiration date, audience and matching hosted domain) and will redirect the user to configured provider's login when their session has timed out.
@@ -52,6 +52,18 @@ Session duration is defined as the number of hours that the JWT is valid for. Af
     1. Azure AD Membership (default)
     1. JSON Username Lookup
         1. Enter your JSON Username Lookup URL (example below) that consists of a single JSON array of usernames to search through
+1. Upload the resulting `zip` file found in your distribution folder using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
+
+#### Login using OKTA
+
+1. Clone or download this repo
+1. Go to the **Applications** tab of your OKTA admin page
+    1. Add Application
+    1. Select **Web** as the platform
+    1. For **Login redirect URIs**, enter your Cloudfront hostname with your preferred path value for the authorization callback. Example: `https://my-cloudfront-site.example.com/_callback`
+    1. Make sure **Authorization Code** is checked for **Grant type allowed**
+1. Execute `./build.sh` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
+1. Choose `OKTA` as the authorization method and enter the values for Base URL, Client ID, Client Secret, Redirect URI, and Session Duration
 1. Upload the resulting `zip` file found in your distribution folder using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
 
 ### Configure Lambda and CloudFront
