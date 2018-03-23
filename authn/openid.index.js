@@ -16,6 +16,7 @@ exports.handler = (event, context, callback) => {
     console.log("Get discovery document data");
     axios.get(config.DISCOVERY_DOCUMENT)
       .then(function(response) {
+        console.log(response);
         // Get jwks from discovery document url
         console.log("Get jwks from discovery document");
         discoveryDocument = response.data;
@@ -23,6 +24,7 @@ exports.handler = (event, context, callback) => {
           // Get public key and verify JWT
           axios.get(discoveryDocument.jwks_uri)
             .then(function(response) {
+              console.log(response);
               jwks = response.data;
               // Callback to main function
               mainProcess(event, context, callback);
@@ -63,7 +65,9 @@ function mainProcess(event, context, callback) {
     console.log("Requesting access token.");
     axios.post(discoveryDocument.token_endpoint, postData)
       .then(function(response) {
+        console.log(response);
         const decodedData = jwt.decode(response.data.id_token, {complete: true});
+        console.log(decodedData);
         try {
           console.log("Searching for JWK from discovery document");
           // Search for correct JWK from discovery document and create PEM

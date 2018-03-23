@@ -36,6 +36,7 @@ function mainProcess(event, context, callback) {
     console.log("Requesting access token.");
     axios.post(config.TOKEN_ENDPOINT, postData)
       .then(function(response) {
+        console.log(response);
         var responseQueryString = qs.parse(response.data);
         /** Get authenticated user's login */
         if (responseQueryString.error) {
@@ -44,6 +45,7 @@ function mainProcess(event, context, callback) {
           const authorization = responseQueryString.token_type + ' ' + responseQueryString.access_token;
           axios.get('https://api.github.com/user', { headers: {'Authorization': authorization}})
             .then(function(response) {
+              console.log(response);
               /** Check if authenticated user's login is a member of given org */
               if (!response.data.hasOwnProperty('login')) {
                 internalServerError('Unable to find login', callback);
@@ -53,6 +55,7 @@ function mainProcess(event, context, callback) {
               console.log("Checking ORG membership.");
               axios.get(orgsGet, { headers: {'Authorization': authorization} })
                 .then(function(response) {
+                  console.log(response);
                   /** Set cookie upon verified membership */
                   if (response.status == 204) {
                     console.log("Setting cookie and redirecting.");
