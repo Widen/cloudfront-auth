@@ -130,7 +130,7 @@ function microsoftConfiguration() {
     switch (result.AUTHZ) {
       case '1':
         shell.cp('./authz/microsoft.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
-        writeConfig(config, zipDefault);
+        writeConfig(config, zip, ['config.json', 'index.js', 'auth.js']);
         break;
       case '2':
         shell.cp('./authz/microsoft.json-username-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
@@ -145,7 +145,7 @@ function microsoftConfiguration() {
           }
         }, function (err, result) {
           config.JSON_USERNAME_LOOKUP = result.JSON_USERNAME_LOOKUP;
-          writeConfig(config, zipDefault);
+          writeConfig(config, zip, ['config.json', 'index.js', 'auth.js']);
         });
         break;
       default:
@@ -219,7 +219,7 @@ function googleConfiguration() {
     switch (result.AUTHZ) {
       case '1':
         shell.cp('./authz/google.hosted-domain.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
-        writeConfig(config, zipDefault);
+        writeConfig(config, zip, ['config.json', 'index.js', 'auth.js']);
         break;
       case '2':
         shell.cp('./authz/google.json-email-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
@@ -234,7 +234,7 @@ function googleConfiguration() {
           }
         }, function (err, result) {
           config.JSON_EMAIL_LOOKUP = result.JSON_EMAIL_LOOKUP;
-          writeConfig(config, zipDefault);
+          writeConfig(config, zip, ['config.json', 'index.js', 'auth.js']);
         });
         break;
       case '3':
@@ -279,7 +279,7 @@ function googleGroupsConfiguration() {
     }
   }, function (err, result) {
     config.SERVICE_ACCOUNT_EMAIL = result.SERVICE_ACCOUNT_EMAIL;
-    writeConfig(config, zipGoogleGroups);
+    writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'google-authz.json']);
   });
 }
 
@@ -342,7 +342,7 @@ function oktaConfiguration() {
     fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
 
     shell.cp('./authz/okta.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
-    writeConfig(config, zipDefault);
+    writeConfig(config, zip, ['config.json', 'index.js', 'auth.js']);
   });
 }
 
@@ -401,7 +401,7 @@ function githubConfiguration() {
 
           shell.cp('./authz/github.membership-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
           shell.cp('./authn/github.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
-          writeConfig(config, zipDefault);
+          writeConfig(config, zip, ['config.json', 'index.js', 'auth.js']);
         } else {
           console.log("Organization could not be verified (code " + response.status + "). Stopping build...");
         }
@@ -412,19 +412,19 @@ function githubConfiguration() {
   });
 }
 
-function zipDefault() {
-  shell.exec('cd distributions/' + config.DISTRIBUTION + ' && zip -q ' + config.DISTRIBUTION + '.zip config.json index.js ../../package-lock.json ../../package.json auth.js -r ../../node_modules');
+function zip(files) {
+  var filesString = '';
+  for (var i = 0; i < files.length; i++) {
+    filesString += ' distributions/' + config.DISTRIBUTION + '/' + files[i] + ' ';
+  }
+  shell.exec('zip -q distributions/' + config.DISTRIBUTION + '/' + config.DISTRIBUTION + '.zip ' + 'package-lock.json package.json -r node_modules');
+  shell.exec('zip -q -r -j distributions/' + config.DISTRIBUTION + '/' + config.DISTRIBUTION + '.zip ' + filesString);
   console.log(colors.green("Done... created Lambda function distributions/" + config.DISTRIBUTION + "/" + config.DISTRIBUTION + ".zip"));
 }
 
-function zipGoogleGroups() {
-  shell.exec('cd distributions/' + config.DISTRIBUTION + ' && zip -q ' + config.DISTRIBUTION + '.zip config.json index.js ../../package-lock.json ../../package.json auth.js google-authz.json -r ../../node_modules');
-  console.log(colors.green("Done... created Lambda function distributions/" + config.DISTRIBUTION + "/" + config.DISTRIBUTION + ".zip"))
-}
-
-function writeConfig(result, callback) {
+function writeConfig(result, callback, files) {
   fs.writeFile('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4), (err) => {
     if (err) throw err;
-    callback();
+    callback(files);
   });
 }
