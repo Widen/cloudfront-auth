@@ -23,12 +23,12 @@ prompt.get({
   }
 }, function (err, result) {
   config.DISTRIBUTION = result.distribution;
-  shell.mkdir('-p', 'distributions/' + config.DISTRIBUTION);  
+  shell.mkdir('-p', 'distributions/' + config.DISTRIBUTION);
   if (fs.existsSync('distributions/' + config.DISTRIBUTION + '/config.json')) {
     oldConfig = JSON.parse(fs.readFileSync('./distributions/' + config.DISTRIBUTION + '/config.json', 'utf8'));
   }
   if (!fs.existsSync('distributions/' + config.DISTRIBUTION + '/id_rsa') || !fs.existsSync('./distributions/' + config.DISTRIBUTION + '/id_rsa.pub')) {
-    shell.exec("ssh-keygen -t rsa -b 4096 -f ./distributions/" + config.DISTRIBUTION + "/id_rsa -N ''");
+    shell.exec("ssh-keygen -t rsa -m PEM -b 4096 -f ./distributions/" + config.DISTRIBUTION + "/id_rsa -N ''");
     shell.exec("openssl rsa -in ./distributions/" + config.DISTRIBUTION + "/id_rsa -pubout -outform PEM -out ./distributions/" + config.DISTRIBUTION + "/id_rsa.pub");
   }
   switch (result.method) {
@@ -43,7 +43,7 @@ prompt.get({
       if (R.pathOr('', ['AUTHN'], oldConfig) != "MICROSOFT") {
         oldConfig = undefined;
       }
-      config.AUTHN = "MICROSOFT";      
+      config.AUTHN = "MICROSOFT";
       microsoftConfiguration();
       break;
     case '3':
@@ -103,7 +103,7 @@ function microsoftConfiguration() {
   }, function(err, result) {
     config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
     config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
-    config.TENANT = result.TENANT;    
+    config.TENANT = result.TENANT;
     config.DISCOVERY_DOCUMENT = 'https://login.microsoftonline.com/' + result.TENANT + '/.well-known/openid-configuration';
     config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
 
@@ -241,7 +241,7 @@ function googleConfiguration() {
         prompt.start();
         prompt.message = colors.blue(">>>");
         prompt.get({
-          properties: { 
+          properties: {
             MOVE: {
               message: colors.red("Place ") + colors.blue("google-authz.json") + colors.red(" file into ") + colors.blue("distributions/" + config.DISTRIBUTION) + colors.red(" folder. Press enter when done")
             }
@@ -255,7 +255,7 @@ function googleConfiguration() {
               console.log('google-authz.json is missing cloudfront_authz_groups. Stopping build...');
             } else {
               shell.cp('./authz/google.groups-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
-              googleGroupsConfiguration();                    
+              googleGroupsConfiguration();
             }
           }
         });
