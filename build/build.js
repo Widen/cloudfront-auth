@@ -124,6 +124,7 @@ function microsoftConfiguration() {
 
     shell.cp('./authz/microsoft.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
     shell.cp('./authn/openid.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
+    shell.cp('./nonce.js', './distributions/' + config.DISTRIBUTION + '/nonce.js');
 
     fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
 
@@ -213,13 +214,14 @@ function googleConfiguration() {
     config.AUTHZ = result.AUTHZ;
 
     shell.cp('./authn/openid.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
+    shell.cp('./nonce.js', './distributions/' + config.DISTRIBUTION + '/nonce.js');
 
     fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
 
     switch (result.AUTHZ) {
       case '1':
         shell.cp('./authz/google.hosted-domain.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
-        writeConfig(config, zip, ['config.json', 'index.js', 'auth.js']);
+        writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
         break;
       case '2':
         shell.cp('./authz/google.json-email-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
@@ -338,6 +340,7 @@ function oktaConfiguration() {
     config.AUTHZ = "OKTA";
 
     shell.cp('./authn/openid.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
+    shell.cp('./nonce.js', './distributions/' + config.DISTRIBUTION + '/nonce.js');
 
     fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
 

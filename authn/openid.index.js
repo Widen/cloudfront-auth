@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const cookie = require('cookie');
 const jwkToPem = require('jwk-to-pem');
 const auth = require('./auth.js');
+const nonce = require('./nonce.js');
 const axios = require('axios');
 var discoveryDocument;
 var jwks;
@@ -95,33 +96,46 @@ function mainProcess(event, context, callback) {
                   unauthorized('Unauthorized. User ' + decodedData.payload.email + ' is not permitted.', callback);
               }
             } else {
-              console.log("Setting cookie and redirecting.");
-              // Once verified, create new JWT for this server
-              const response = {
-                "status": "302",
-                "statusDescription": "Found",
-                "body": "ID token retrieved.",
-                "headers": {
-                  "location" : [{
-                    "key": "Location",
-                    "value": event.Records[0].cf.config.hasOwnProperty('test') ? (config.AUTH_REQUEST.redirect_uri + queryDict.state) : queryDict.state
-                  }],
-                  "set-cookie" : [{
-                    "key": "Set-Cookie",
-                    "value" : cookie.serialize('TOKEN', jwt.sign(
-                      { },
-                      config.PRIVATE_KEY.trim(),
-                      {
-                        "audience": headers.host[0].value,
-                        "subject": auth.getSubject(decodedData),
-                        "expiresIn": config.SESSION_DURATION,
-                        "algorithm": "RS256"
-                      } // Options
-                    ))
-                  }],
-                },
-              };
-              callback(null, response);
+              if ("cookie" in headers
+                  && "NONCE" in cookie.parse(headers["cookie"][0].value)
+                  && nonce.validateNonce(decoded.nonce, cookie.parse(headers["cookie"][0].value).NONCE)) {
+                console.log("Setting cookie and redirecting.");
+                // Once verified, create new JWT for this server
+                const response = {
+                  "status": "302",
+                  "statusDescription": "Found",
+                  "body": "ID token retrieved.",
+                  "headers": {
+                    "location" : [{
+                      "key": "Location",
+                      "value": event.Records[0].cf.config.hasOwnProperty('test') ? (config.AUTH_REQUEST.redirect_uri + queryDict.state) : queryDict.state
+                    }],
+                    "set-cookie" : [{
+                      "key": "Set-Cookie",
+                      "value" : cookie.serialize('TOKEN', jwt.sign(
+                        { },
+                        config.PRIVATE_KEY.trim(),
+                        {
+                          "audience": headers.host[0].value,
+                          "subject": auth.getSubject(decodedData),
+                          "expiresIn": config.SESSION_DURATION,
+                          "algorithm": "RS256"
+                        } // Options
+                      ))
+                    },
+                    {
+                      "key": "Set-Cookie",
+                      "value" : cookie.serialize('NONCE', '', { 
+                        path: '/', 
+                        expires: new Date(1970, 1, 1, 0, 0, 0, 0) 
+                       })
+                    }],
+                  },
+                };
+                callback(null, response);
+              } else {
+                unauthorized('Nonce verification failed.', callback);
+              }
             }
           });
         } catch (error) {
@@ -162,8 +176,8 @@ function mainProcess(event, context, callback) {
 }
 
 function redirect(request, headers, callback) {
-  var n = require('nonce')();
-  config.AUTH_REQUEST.nonce = n();  
+  const n = nonce.getNonce();
+  config.AUTH_REQUEST.nonce = n[0];
   config.AUTH_REQUEST.state = request.uri;
   // Redirect to Authorization Server
   var querystring = qs.stringify(config.AUTH_REQUEST);
@@ -174,13 +188,23 @@ function redirect(request, headers, callback) {
     "body": "Redirecting to OIDC provider",
     "headers": {
         "location" : [{
-            "key": "Location",
-            "value": discoveryDocument.authorization_endpoint + '?' + querystring
+          "key": "Location",
+          "value": discoveryDocument.authorization_endpoint + '?' + querystring
          }],
-         "set-cookie" : [{
-           "key": "Set-Cookie",
-           "value" : cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
-         }],
+        "set-cookie" : [{
+          "key": "Set-Cookie",
+          "value" : cookie.serialize('TOKEN', '', { 
+            path: '/', 
+            expires: new Date(1970, 1, 1, 0, 0, 0, 0) 
+          })
+        },
+        {
+          "key": "Set-Cookie",
+          "value" : cookie.serialize('NONCE', n[1], { 
+            path: '/',
+            httpOnly: true
+          })
+        }],
     },
   };
   callback(null, response);
@@ -192,10 +216,20 @@ function unauthorized(body, callback) {
     "statusDescription": "Unauthorized",
     "body": body,
     "headers": {
-       "set-cookie" : [{
-         "key": "Set-Cookie",
-         "value" : cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
-       }],
+      "set-cookie" : [{
+        "key": "Set-Cookie",
+        "value" : cookie.serialize('TOKEN', '', { 
+          path: '/', 
+          expires: new Date(1970, 1, 1, 0, 0, 0, 0) 
+        })
+      },
+      {
+      "key": "Set-Cookie",
+      "value" : cookie.serialize('NONCE', '', { 
+        path: '/', 
+        expires: new Date(1970, 1, 1, 0, 0, 0, 0) 
+        })
+      }],
     },
   };
   callback(null, response);
