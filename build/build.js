@@ -243,7 +243,7 @@ function googleConfiguration() {
           }
         }, function (err, result) {
           config.JSON_EMAIL_LOOKUP = result.JSON_EMAIL_LOOKUP;
-          writeConfig(config, zip, ['config.json', 'index.js', 'auth.js']);
+          writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
         });
         break;
       case '3':
@@ -352,7 +352,7 @@ function oktaConfiguration() {
     fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
 
     shell.cp('./authz/okta.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
-    writeConfig(config, zip, ['config.json', 'index.js', 'auth.js']);
+    writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
   });
 }
 
@@ -483,7 +483,7 @@ function auth0Configuration() {
     fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
 
     shell.cp('./authz/auth0.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
-    writeConfig(config, zip, ['config.json', 'index.js', 'auth.js']);
+    writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
   });
 }
 
