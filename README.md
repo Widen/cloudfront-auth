@@ -75,7 +75,7 @@ Session duration is defined as the number of hours that the JWT is valid for. Af
     1. Now select an application type and follow the steps for 'Quick Start' or use your own app.
     1. Go to application **Settings** and enter required details. In **Allowed Callback URLs** enter your Cloudfront hostname with your preferred path value for the authorization callback. Example: `https://my-cloudfront-site.example.com/_callback`
 1. Execute `./build.sh` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
-1. Choose `AUTH0` as the authorization method and enter the values for Base URL, Client ID, Client Secret, Redirect URI, and Session Duration
+1. Choose `AUTH0` as the authorization method and enter the values for Base URL (Auth0 Domain), Client ID, Client Secret, Redirect URI, and Session Duration
 1. Upload the resulting `zip` file found in your distribution folder using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
 
 ### Configure Lambda and CloudFront
