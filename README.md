@@ -32,7 +32,7 @@ Session duration is defined as the number of hours that the JWT is valid for. Af
 1. Execute `./build.sh` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
 1. Choose `Google` as the authorization method and enter the values for Client ID, Client Secret, Redirect URI, Hosted Domain and Session Duration
 1. Select the preferred authentication method
-    1. Hosted Domain (verify email's domain matches that of the given hosted domain) 
+    1. Hosted Domain (verify email's domain matches that of the given hosted domain)
     1. JSON Email Lookup
         1. Enter your JSON Email Lookup URL (example below) that consists of a single JSON array of emails to search through
     1. Google Groups Lookup
@@ -47,7 +47,7 @@ Session duration is defined as the number of hours that the JWT is valid for. Af
     1. Once created, go to your application `Settings -> Keys` and make a new key with your desired duration. Click save and copy the value. This will be your `client_secret`
     1. Above where you selected `Keys`, go to `Reply URLs` and enter your Cloudfront hostname with your preferred path value for the authorization callback. Example: https://my-cloudfront-site.example.com/_callback
 1. Execute `./build.sh` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
-1. Choose `Microsoft` as the authorization method and enter the values for [Tenant](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-howto-tenant), Client ID (**Application ID**), Client Secret (**previously created key**), Redirect URI and Session Duration 
+1. Choose `Microsoft` as the authorization method and enter the values for [Tenant](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-howto-tenant), Client ID (**Application ID**), Client Secret (**previously created key**), Redirect URI and Session Duration
 1. Select the preferred authentication method
     1. Azure AD Membership (default)
     1. JSON Username Lookup
@@ -78,35 +78,9 @@ Session duration is defined as the number of hours that the JWT is valid for. Af
 1. Choose `AUTH0` as the authorization method and enter the values for Base URL (Auth0 Domain), Client ID, Client Secret, Redirect URI, and Session Duration
 1. Upload the resulting `zip` file found in your distribution folder using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
 
-### Configure Lambda and CloudFront
+## Configure Lambda and CloudFront
 
-1. Upload **cloudfront-auth.zip** to Lambda using the [AWS Console](https://console.aws.amazon.com/lambda/home):
-    1. Choose **Create function**
-    1. Choose **Blueprints**
-        - Search and select **cloudfront-http-redirect**
-        - Enter Name (e.g. `My_Site_Cloudfront_Auth`)
-        - Select **Create new role from Templates** as the **Role**
-        - Enter Role Name (e.g. `Lambda_At_Edge_Cloudfront`)
-        - Add the role policy template **Basic Edge Lambda Permissions**
-        - Click **Create function**
-    1. Choose **Upload a .ZIP file** under the **Function code** header and **Code entry type** field
-        - Click **Upload** and choose your generated `cloudfront-auth.zip` file
-        - Set **Timeout** under **Basic Settings** to be 5 seconds
-        - Click **Save**
-    1. Choose **Publish new version** under the **Actions** button
-        - Enter a version description (e.g. `v1`)
-    1. Copy the ARN value (required to be your published versioned) from the top-right: `arn:aws:lambda:us-east-1:9999999999:function:my-site-cloudfront-auth:1`
-
-1. Configure CloudFront to use the Lambda function upon **viewer request**:
-   1. Choose the **Behaviors** tab for your CloudFront distribution, mark the checkbox for the origin, choose **Edit**
-      ![alt text](https://lh3.googleusercontent.com/T4b26lGh3yu4SSxXAG3Vb63iuWxTXkqgFTiXNp5i-NCGQ6AgH_Lal5CYse6gZJOpjSK8xKi9kuF8niPKbqjbrTFYDB7n6ZNv-mANWytL_zatFwDamFQZ_1RnDnEAGkXfrKONRNfJh6w8qjLHKuCk1JWnqsIWYnIr44J2j6wFKceasggPxnh8IfhC869-Pz3GRC6AvURWLOVoQWZI5tp7NQ6U4NGZ-dI-bEjOSTqx96PEnlbIY4r-Js76SgbKI_94aow5eMXmhbGFcsheUIZ5jRXJ6NT9Z3SpPEw0tvJwqDEs5UyM8xva_Ghb33EsV3bfDzZbaKoCXk3diKnBCV5BTpfx8szaiOxiqHZY8wfFEZfkeZi-sZECSAECcnXcIWVEGId52vjtQmNi0krfwcAUSHzkEMB3E3jHMH2fd8q3Pp8YO5w1A2wgAE_SDVuT6JRS-i1vFoRx-OkfSpNI4kdY7Uh4MxvP6fR_hNVPCxilM9y0D_S8ln7MWAPE_7V3RkV214SObk_PoU4dW3u67PD1BUfD8kR96Kf6UV8s5IhM61ks9u1PvbFj822y51CWAhTRe02tcwPdB9Km0jbYXYgzkPFkzPXCYCKeTLCg0m2m4HAUS5SL7P3ftYN98FyOdYYrbtmYiJtwatH6gjwfyX6ENc2rDMa4A8Q=w1684-h586-no "Edit behavior")
-   1. Under **Lambda Function Associations**
-        - Select **Viewer Request** for the **Event Type**
-        - Enter the Lambda ARN value (e.g. `arn:aws:lambda:us-east-1:9999999999:function:my-site-cloudfront-auth:1`)
-        ![alt text](https://lh3.googleusercontent.com/9YGTDMxX-9q_3GhW-w9ORcWejG3ZoQUBhviVb3_Dr1iCuvbmvSHM0WXLZ5UrlvUzkuDcfBtJJMqF5C7kWdJuG5P2abOiBNhLoxTF41oQqOzyWofio6TCTW_56SjjaMCzDyocusbx9GzOaJNHAWIIvDXByLwfHCaWQf7VcGdBx4WnwKwvq5_08Pv2G2JIkznTRzSrpd6KbMpkSUT7H3dOO-mZbPEl6NKvmIJ0iAW834R4KSx0gHEtzTLYu6FPN0oWHkQwGHh2x4kmBaSp1WyxaE98okVe3QMZ_bYPt2NDVSQHuPcd3mOQAjJBNnyBoq5zgJYe5r5AdSbyIJ7bfJDthUcqk_ZL67DJ39_NkFrdyJN2A5n5Iunn2axtN7vMlsi54WxfcQFpxTs3x_2QPRYGEaYUnjuLVpS7ZdlDgp3-46pUqEISCOAVb5wMU2lY4KFEdEiSOccKcvjuyK25GxvDvGkZTR5xP6DRm8A6uOmQbOEEL5M9OMB0_OS5pMW_DWAnXeqwHSLZk42Wc58YyJlLSZ0WBnFPvAHoEuV2N-mYL6NhKSoLBEK_HM6TyEH03SolS6baVyTH_cPSDwya-N7EQtnyM1aL3WKaKv6V_ETTH3g8zOB-EydUbjpEEPyUJrjqFsrHNQieeksEGIWe0gqX93r7FpxiLXk=w1528-h298-no "Point to Lambda function on viewer request")
-        - **Save**
-   1. It may take Cloudfront up to 20 minutes to fully configure the distribution. You may receive strange errors while the distribution is still updating.
-   1. When fully deployed, your browser will be redirected to your authentication provider as necessary! Enjoy!
+[Manual Deployment](https://github.com/Widen/cloudfront-auth/wiki/Manual-Deployment) __*or*__ [AWS SAM Deployment](https://github.com/Widen/cloudfront-auth/wiki/AWS-SAM-Deployment)
 
 ## Authorization Method Examples
 

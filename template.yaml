@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM configuration for cloudfront-auth function
+Resources:
+
+    CloudFrontAuthFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+          CodeUri: distributions/auth0/auth0.zip
+          Role: !GetAtt LambdaEdgeFunctionRole.Arn
+          Runtime: nodejs6.10
+          Handler: index.handler
+          Timeout: 5
+          AutoPublishAlias: LIVE
+
+    LambdaEdgeFunctionRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+          Path: "/"
+          ManagedPolicyArns:
+              - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+          AssumeRolePolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Sid: "AllowLambdaServiceToAssumeRole"
+                Effect: "Allow"
+                Action:
+                  - "sts:AssumeRole"
+                Principal:
+                  Service:
+                    - "lambda.amazonaws.com"
+                    - "edgelambda.amazonaws.com"
+
+Outputs:
+
+    CloudFrontAuthFunction:
+      Description: Lambda@Edge CloudFront Auth Function ARN
+      Value: !GetAtt CloudFrontAuthFunction.Arn
+
+    CloudFrontAuthFunctionVersion:
+      Description: Lambda@Edge CloudFront Auth Function ARN with Version
+      Value: !Ref CloudFrontAuthFunction.Version

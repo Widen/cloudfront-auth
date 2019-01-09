@@ -12,3 +12,4 @@ tests/logs/*
 !tests/logs/.gitkeep
 tests/config
 /distributions
+packaged.yaml
