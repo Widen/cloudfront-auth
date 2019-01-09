@@ -6,7 +6,7 @@ Resources:
     CloudFrontAuthFunction:
         Type: AWS::Serverless::Function
         Properties:
-          CodeUri: distributions/auth0/auth0.zip
+          CodeUri: distributions/{distribution_name}/{distribution_name}.zip
           Role: !GetAtt LambdaEdgeFunctionRole.Arn
           Runtime: nodejs6.10
           Handler: index.handler
