@@ -70,7 +70,7 @@ function mainProcess(event, context, callback) {
       unauthorized("No code found.", callback);
     }
     config.TOKEN_REQUEST.code = queryDict.code;
-    
+
     // Exchange code for authorization token
     const postData = qs.stringify(config.TOKEN_REQUEST);
     console.log("Requesting access token.");
@@ -139,13 +139,16 @@ function mainProcess(event, context, callback) {
                             "expiresIn": config.SESSION_DURATION,
                             "algorithm": "RS256"
                           } // Options
-                        ))
+                        ), {
+                          path: '/',
+                          maxAge: config.SESSION_DURATION
+                        })
                       },
                       {
                         "key": "Set-Cookie",
-                        "value" : cookie.serialize('NONCE', '', { 
-                          path: '/', 
-                          expires: new Date(1970, 1, 1, 0, 0, 0, 0) 
+                        "value" : cookie.serialize('NONCE', '', {
+                          path: '/',
+                          expires: new Date(1970, 1, 1, 0, 0, 0, 0)
                         })
                       }
                     ],
@@ -217,14 +220,14 @@ function redirect(request, headers, callback) {
       "set-cookie" : [
         {
           "key": "Set-Cookie",
-          "value" : cookie.serialize('TOKEN', '', { 
-            path: '/', 
-            expires: new Date(1970, 1, 1, 0, 0, 0, 0) 
+          "value" : cookie.serialize('TOKEN', '', {
+            path: '/',
+            expires: new Date(1970, 1, 1, 0, 0, 0, 0)
           })
         },
         {
           "key": "Set-Cookie",
-          "value" : cookie.serialize('NONCE', n[1], { 
+          "value" : cookie.serialize('NONCE', n[1], {
             path: '/',
             httpOnly: true
           })
@@ -246,16 +249,16 @@ function unauthorized(body, callback) {
       "set-cookie" : [
         {
           "key": "Set-Cookie",
-          "value" : cookie.serialize('TOKEN', '', { 
-            path: '/', 
-            expires: new Date(1970, 1, 1, 0, 0, 0, 0) 
+          "value" : cookie.serialize('TOKEN', '', {
+            path: '/',
+            expires: new Date(1970, 1, 1, 0, 0, 0, 0)
           })
         },
         {
           "key": "Set-Cookie",
-          "value" : cookie.serialize('NONCE', '', { 
-            path: '/', 
-            expires: new Date(1970, 1, 1, 0, 0, 0, 0) 
+          "value" : cookie.serialize('NONCE', '', {
+            path: '/',
+            expires: new Date(1970, 1, 1, 0, 0, 0, 0)
           })
         }
       ],
