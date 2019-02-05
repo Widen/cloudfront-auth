@@ -57,13 +57,20 @@ Session duration is defined as the number of hours that the JWT is valid for. Af
 #### Login using OKTA
 
 1. Clone or download this repo
-1. Go to the **Applications** tab of your OKTA admin page
-    1. Add Application
-    1. Select **Web** as the platform
-    1. For **Login redirect URIs**, enter your Cloudfront hostname with your preferred path value for the authorization callback. Example: `https://my-cloudfront-site.example.com/_callback`
-    1. Make sure **Authorization Code** is checked for **Grant type allowed**
+1. Sign in to OKTA with your administrator account and navigate to the `Applications` tab.
+1. Add Application
+    1. Select the `Web` application type
+    1. Base URI: CloudFront distribution domain name (`https://{cf-endpoint}.cloudfront.net`)
+    1. Login Redirect URI: CloudFront distribution domain name with callback path (`https://{cf-endpoint}.cloudfront.net/_callback`)
+    1. Group Assignments: Optional
+    1. Grant Type Allowed: Authorization Code
+    1. Done
+1. Gather the following information for Lambda configuration
+    1. Client Id and Client Secret from the application created in our previous step (can be found at the bottom of the general tab)
+    1. Base Url
+        1. This is named the 'Org URL' and can be found in the top right of the Dashboard tab.
 1. Execute `./build.sh` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
-1. Choose `OKTA` as the authorization method and enter the values for Base URL, Client ID, Client Secret, Redirect URI, and Session Duration
+1. Choose `OKTA` as the authorization method and enter the values for Base URL (Org URL), Client ID, Client Secret, Redirect URI, and Session Duration
 1. Upload the resulting `zip` file found in your distribution folder using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
 
 #### Login using Auth0
