@@ -6,7 +6,7 @@ function isAuthorized(decoded, request, callback, unauthorized, internalServerEr
       if (Array.isArray(response.data) && response.data.indexOf(decoded.sub) > -1) {
         callback(null, request);
       } else {
-        unauthorized('Unauthorized. User ' + decoded.sub + ' is not permitted.', callback);
+        unauthorized('Unauthorized', 'User ' + decoded.sub + ' is not permitted.', '', callback);
       }
     })
     .catch(function(error) {
@@ -14,7 +14,7 @@ function isAuthorized(decoded, request, callback, unauthorized, internalServerEr
     });
 }
 
-function getSubject(decoded) { 
+function getSubject(decoded) {
     if (decoded.payload.hasOwnProperty('upn')) {
         return decoded.payload.upn;
     } else {

@@ -32,13 +32,13 @@ function isAuthorized(decoded, request, callback, unauthorized, internalServerEr
             if (!response.data.error && response.data.isMember == true && decoded.aud === request.headers.host[0].value && decoded.sub.endsWith(config.HOSTED_DOMAIN)) {
               callback(null, request);
             } else if (groupChecks >= googleAuthz.cloudfront_authz_groups.length) {
-              unauthorized('Unauthorized. User ' + decoded.sub + ' is not permitted.', callback);
+              unauthorized('Unauthorized', 'User ' + decoded.sub + ' is not permitted.', '', callback);
             }
           })
           .catch(function(error) {
             groupChecks++;
             if (groupChecks >= googleAuthz.cloudfront_authz_groups.length) {
-              unauthorized('Unauthorized. User ' + decoded.sub + ' is not permitted.', callback);
+              unauthorized('Unauthorized.', 'User ' + decoded.sub + ' is not permitted.', '', callback);
             }
           });
       }
