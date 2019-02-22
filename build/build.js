@@ -18,7 +18,7 @@ prompt.get({
       required: true
     },
     method: {
-      description: colors.red("Authentication methods:\n    (1) Google\n    (2) Microsoft\n    (3) GitHub\n    (4) OKTA\n    (5) Auth0\n\n    Select an authentication method")
+      description: colors.red("Authentication methods:\n    (1) Google\n    (2) Microsoft\n    (3) GitHub\n    (4) OKTA\n    (5) Auth0\n    (6) Centrify\n\n    Select an authentication method")
     }
   }
 }, function (err, result) {
@@ -66,6 +66,13 @@ prompt.get({
       }
       config.AUTHN = "AUTH0";
       auth0Configuration();
+      break;
+    case '6':
+      if (R.pathOr('', ['AUTHN'], oldConfig) != "CENTRIFY") {
+        oldConfig = undefined;
+      }
+      config.AUTHN = "CENTRIFY";
+      centrifyConfiguration();
       break;
     default:
       console.log("Method not recognized. Stopping build...");
@@ -487,7 +494,70 @@ function auth0Configuration() {
   });
 }
 
+// Centrify configuration
+function centrifyConfiguration() {
+  prompt.message = colors.blue(">>");
+  prompt.start();
+  prompt.get({
+    properties: {
+      BASE_URL: {
+        message: colors.red("Base URL"),
+        required: true,
+        default: R.pathOr('', ['BASE_URL'], oldConfig)
+      },
+      CLIENT_ID: {
+        message: colors.red("Client ID"),
+        required: true,
+        default: R.pathOr('', ['AUTH_REQUEST', 'client_id'], oldConfig)
+      },
+      CLIENT_SECRET: {
+        message: colors.red("Client Secret"),
+        required: true,
+        default: R.pathOr('', ['TOKEN_REQUEST', 'client_secret'], oldConfig)
+      },
+      REDIRECT_URI: {
+        message: colors.red("Redirect URI"),
+        required: true,
+        default: R.pathOr('', ['AUTH_REQUEST', 'redirect_uri'], oldConfig)
+      },
+      SESSION_DURATION: {
+        pattern: /^[0-9]*$/,
+        description: colors.red("Session Duration (hours)"),
+        message: colors.green("Entry must only contain numbers"),
+        required: true,
+        default: R.pathOr('', ['SESSION_DURATION'], oldConfig)/60/60
+      }
+    }
+  }, function(err, result) {
+    config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
+    config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
+    config.DISCOVERY_DOCUMENT = result.BASE_URL + '/.well-known/openid-configuration';
+    config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
 
+    config.BASE_URL = result.BASE_URL;
+    config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
+
+    config.AUTH_REQUEST.client_id = result.CLIENT_ID;
+    config.AUTH_REQUEST.response_type = 'code';
+    config.AUTH_REQUEST.scope = 'openid email';
+    config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
+
+    config.TOKEN_REQUEST.client_id = result.CLIENT_ID;
+    config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
+    config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
+    config.TOKEN_REQUEST.grant_type = 'authorization_code';
+
+    config.AUTHZ = "CENTRIFY";
+
+    shell.cp('./authn/openid.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
+    shell.cp('./nonce.js', './distributions/' + config.DISTRIBUTION + '/nonce.js');
+
+    fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
+
+    shell.cp('./authz/centrify.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
+    writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
+  });
+}
 
 function zip(files) {
   var filesString = '';
