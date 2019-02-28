@@ -18,7 +18,7 @@ prompt.get({
       required: true
     },
     method: {
-      description: colors.red("Authentication methods:\n    (1) Google\n    (2) Microsoft\n    (3) GitHub\n    (4) OKTA\n    (5) Auth0\n    (6) Centrify\n\n    Select an authentication method")
+      description: colors.red("Authentication methods:\n    (1) Google\n    (2) AWS Cognito\n    (3) Microsoft\n    (4) GitHub\n    (5) OKTA\n    (6) Auth0\n    (7) Centrify\n\n    Select an authentication method")
     }
   }
 }, function (err, result) {
@@ -40,34 +40,41 @@ prompt.get({
       googleConfiguration();
       break;
     case '2':
+      if (R.pathOr('', ['AUTHN'], oldConfig) != "COGNITO") {
+        oldConfig = undefined;
+      }
+      config.AUTHN = "COGNITO";
+      cognitoConfiguration();
+      break;
+    case '3':
       if (R.pathOr('', ['AUTHN'], oldConfig) != "MICROSOFT") {
         oldConfig = undefined;
       }
       config.AUTHN = "MICROSOFT";
       microsoftConfiguration();
       break;
-    case '3':
+    case '4':
       if (R.pathOr('', ['AUTHN'], oldConfig) != "GITHUB") {
         oldConfig = undefined;
       }
       config.AUTHN = "GITHUB";
       githubConfiguration();
       break;
-    case '4':
+    case '5':
       if (R.pathOr('', ['AUTHN'], oldConfig) != "OKTA") {
         oldConfig = undefined;
       }
       config.AUTHN = "OKTA";
       oktaConfiguration();
       break;
-    case '5':
+    case '6':
       if (R.pathOr('', ['AUTHN'], oldConfig) != "AUTH0") {
         oldConfig = undefined;
       }
       config.AUTHN = "AUTH0";
       auth0Configuration();
       break;
-    case '6':
+    case '7':
       if (R.pathOr('', ['AUTHN'], oldConfig) != "CENTRIFY") {
         oldConfig = undefined;
       }
@@ -79,6 +86,68 @@ prompt.get({
       process.exit(1);
   }
 });
+
+function cognitoConfiguration() {
+  prompt.message = colors.blue(">>");
+  prompt.start();
+  prompt.get({
+    properties: {
+      BASE_URL: {
+        message: colors.red("Base URL"),
+        required: true,
+        default: R.pathOr('', ['BASE_URL'], oldConfig)
+      },
+      CLIENT_ID: {
+        message: colors.red("Client ID"),
+        required: true,
+        default: R.pathOr('', ['AUTH_REQUEST', 'client_id'], oldConfig)
+      },
+      CLIENT_SECRET: {
+        message: colors.red("Client Secret"),
+        required: true,
+        default: R.pathOr('', ['TOKEN_REQUEST', 'client_secret'], oldConfig)
+      },
+      REDIRECT_URI: {
+        message: colors.red("Redirect URI"),
+        required: true,
+        default: R.pathOr('', ['AUTH_REQUEST', 'redirect_uri'], oldConfig)
+      },
+      SESSION_DURATION: {
+        message: colors.red("Session Duration (hours)"),
+        required: true,
+        default: R.pathOr('', ['SESSION_DURATION'], oldConfig)/60/60
+      }
+    }
+  }, function(err, result) {
+    config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
+    config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
+    config.DISCOVERY_DOCUMENT = result.BASE_URL + '/.well-known/openid-configuration';
+    config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
+
+    config.BASE_URL = result.BASE_URL;
+    config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
+
+    config.AUTH_REQUEST.client_id = result.CLIENT_ID;
+    config.AUTH_REQUEST.response_type = 'code';
+    config.AUTH_REQUEST.scope = 'openid email';
+    config.AUTH_REQUEST.redirect_uri = result.REDIRECT_URI;
+
+    config.TOKEN_REQUEST.client_id = result.CLIENT_ID;
+    config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
+    config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
+    config.TOKEN_REQUEST.grant_type = 'authorization_code';
+
+    config.AUTHZ = "COGNITO";
+
+    shell.cp('./authn/openid.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
+    shell.cp('./nonce.js', './distributions/' + config.DISTRIBUTION + '/nonce.js');
+
+    fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
+
+    shell.cp('./authz/okta.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
+    writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
+  });
+}
 
 function microsoftConfiguration() {
   prompt.message = colors.blue(">>");
