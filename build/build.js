@@ -235,6 +235,7 @@ function googleConfiguration() {
     switch (result.AUTHZ) {
       case '1':
         shell.cp('./authz/google.hosted-domain.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
+        shell.cp('./nonce.js', './distributions/' + config.DISTRIBUTION + '/nonce.js');
         writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
         break;
       case '2':
