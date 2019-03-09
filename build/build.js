@@ -145,7 +145,7 @@ function microsoftConfiguration() {
     switch (result.AUTHZ) {
       case '1':
         shell.cp('./authz/microsoft.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
-        writeConfig(config, zip, ['config.json', 'index.js', 'auth.js']);
+        writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
         break;
       case '2':
         shell.cp('./authz/microsoft.json-username-lookup.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
@@ -160,7 +160,7 @@ function microsoftConfiguration() {
           }
         }, function (err, result) {
           config.JSON_USERNAME_LOOKUP = result.JSON_USERNAME_LOOKUP;
-          writeConfig(config, zip, ['config.json', 'index.js', 'auth.js']);
+          writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
         });
         break;
       default:
