@@ -11,7 +11,7 @@
   "dependencies": {
     "aws-sdk": "^2.207.0",
     "dateformat": "^3.0.3",
-    "generate-password": "^1.4.0",
+    "generate-password": "^1.4.1",
     "http": "0.0.0",
     "json-beautify": "^1.0.1",
     "ngrok": "^2.3.0",
