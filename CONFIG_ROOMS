@@ -3,7 +3,7 @@ I would recommend Node 10.X for language version in Lambda.
 to build a config for rooms.hudltools.com use the following values:
 distribution: rooms.hudltools.com
 baseurl: https://hudl.okta.com
-clientid: 0oa1fgagpupVXrE2v1d8
+clientid: <retrieve from within Okta App Config>
 clientsecret: <retrieve from within Okta App Config>
 redirecturl: https://rooms.hudltools.com/_callback
 sessionduration: 24hr
