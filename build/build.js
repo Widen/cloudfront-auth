@@ -331,6 +331,11 @@ function oktaConfiguration() {
         message: colors.green("Entry must only contain numbers"),
         required: true,
         default: R.pathOr('', ['SESSION_DURATION'], oldConfig)/60/60
+      },
+      WHITELIST_IP_CIDR: {
+        description: colors.red("Whitelist IP CIDRs (comma separated)"),
+        required: false,
+        default: R.pathOr([], ['WHITELIST_IP_CIDR'], oldConfig)
       }
     }
   }, function(err, result) {
@@ -341,6 +346,7 @@ function oktaConfiguration() {
 
     config.BASE_URL = result.BASE_URL;
     config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
+    config.WHITELIST_IP_CIDR = result.WHITELIST_IP_CIDR;
 
     config.AUTH_REQUEST.client_id = result.CLIENT_ID;
     config.AUTH_REQUEST.response_type = 'code';

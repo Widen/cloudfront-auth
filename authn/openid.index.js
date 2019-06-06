@@ -6,6 +6,7 @@ const jwkToPem = require('jwk-to-pem');
 const auth = require('./auth.js');
 const nonce = require('./nonce.js');
 const axios = require('axios');
+const net = require('net');
 var discoveryDocument;
 var jwks;
 var config;
@@ -61,6 +62,13 @@ function mainProcess(event, context, callback) {
   if (event.Records[0].cf.config.hasOwnProperty('test')) {
     config.AUTH_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
     config.TOKEN_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
+  }
+  if(isIpWhitelisted(request.clientIp, config.WHITELIST_IP_CIDR)) {
+    // if IP is within whitelist CIDR ranges - then just pass thru directly
+    // no auth tokens will be written so any auth look up will fail
+    console.log('Auth passthru from IP: ' + request.clientIp);
+    callback(null, request);
+    return;
   }
   if (request.uri.startsWith(config.CALLBACK_PATH)) {
     console.log("Callback from OIDC provider received");
@@ -349,3 +357,28 @@ function internalServerError(callback) {
   };
   callback(null, response);
 }
+
+function isIpWhitelisted(clientIp, whitelistCidrList) {
+  //console.log('clientip: ' + clientIp);
+  //console.log('raw whitelist: ' + whitelistCidrList);
+
+  if(!clientIp || !whitelistCidrList || !net.isIPv4(clientIp)) {
+    return false;
+  }
+
+  var whiteList = whitelistCidrList.split(',').map(e=>e.trim());
+
+  return isIp4InCidrs(clientIp, whiteList);
+}
+
+// FROM: https://tech.mybuilder.com/determining-if-an-ipv4-address-is-within-a-cidr-range-in-javascript/
+const ip4ToInt = ip =>
+  ip.split('.').reduce((int, oct) => (int << 8) + parseInt(oct, 10), 0) >>> 0;
+
+const isIp4InCidr = ip => cidr => {
+  const [range, bits = 32] = cidr.split('/');
+  const mask = ~(2 ** (32 - bits) - 1);
+  return (ip4ToInt(ip) & mask) === (ip4ToInt(range) & mask);
+};
+
+const isIp4InCidrs = (ip, cidrs) => cidrs.some(isIp4InCidr(ip));
