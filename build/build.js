@@ -374,9 +374,9 @@ function oktaConfiguration() {
       shell.cp('./authn/openid.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
     } else {
       config.PKCE_CODE_VERIFIER_LENGTH = result.PKCE_CODE_VERIFIER_LENGTH || "96";
-      shell.cp('./code_challenge.js', './distributions/' + config.DISTRIBUTION + '/code_challenge.js');
+      shell.cp('./code-challenge.js', './distributions/' + config.DISTRIBUTION + '/code-challenge.js');
       shell.cp('./authn/pkce.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
-      files.push('code_challenge.js');
+      files.push('code-challenge.js');
     }
     config.AUTHZ = "OKTA";
 

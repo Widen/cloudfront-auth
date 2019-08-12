@@ -100,6 +100,25 @@ Session duration is defined as the number of hours that the JWT is valid for. Af
 1. Choose `CENTRIFY` as the authorization method and enter the values for Base URL (Centrify Resource application URL), Client ID, Client Secret, Redirect URI, and Session Duration (which is available from the **Tokens** tab).
 1. Upload the resulting `zip` file found in your distribution folder using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
 
+### OKTA Native
+
+1. Clone or download this repo
+1. Sign in to OKTA with your administrator account and navigate to the `Applications` tab.
+1. Add Application
+    1. Select the `Native` application type
+    1. Base URI: CloudFront distribution domain name (`https://{cf-endpoint}.cloudfront.net`)
+    1. Login Redirect URI: CloudFront distribution domain name with callback path (`https://{cf-endpoint}.cloudfront.net/_callback`)
+    1. Group Assignments: Optional
+    1. Grant Type Allowed: Authorization Code
+    1. Done
+1. Gather the following information for Lambda configuration
+    1. Client Id from the application created in our previous step (can be found at the bottom of the general tab)
+    1. Base Url
+        1. This is named the 'Org URL' and can be found in the top right of the Dashboard tab.
+1. Execute `./build.sh` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
+1. Choose `OKTA Native` as the authorization method and enter the values for Base URL (Org URL), Client ID, PKCE Code Verifier Length, Redirect URI, and Session Duration
+1. Upload the resulting `zip` file found in your distribution folder using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
+
 ## Configure Lambda and CloudFront
 
 [Manual Deployment](https://github.com/Widen/cloudfront-auth/wiki/Manual-Deployment) __*or*__ [AWS SAM Deployment](https://github.com/Widen/cloudfront-auth/wiki/AWS-SAM-Deployment)
