@@ -217,7 +217,7 @@ function googleConfiguration() {
     config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
     config.DISCOVERY_DOCUMENT = 'https://accounts.google.com/.well-known/openid-configuration';
     config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
-    
+
     config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
     config.HOSTED_DOMAIN = result.HD;
 
@@ -303,7 +303,7 @@ function googleGroupsConfiguration() {
     }
   }, function (err, result) {
     config.SERVICE_ACCOUNT_EMAIL = result.SERVICE_ACCOUNT_EMAIL;
-    writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'google-authz.json']);
+    writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'google-authz.json', 'nonce.js']);
   });
 }
 
