@@ -137,7 +137,7 @@ Detailed instructions on testing your function can be found [in the Wiki](https:
 
 ## Build Requirements
  - [npm](https://www.npmjs.com/) ^5.6.0
- - [node](https://nodejs.org/en/) ^8.10.0
+ - [node](https://nodejs.org/en/) ^10.0
  - [openssl](https://www.openssl.org)
 
 ## Contributing
