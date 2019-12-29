@@ -44,7 +44,7 @@ function isAuthorized(decoded, request, callback, unauthorized, internalServerEr
       }
     })
     .catch(function(error) {
-      internalServerError(error.message, callback);
+      internalServerError(callback);
     });
 }
 
