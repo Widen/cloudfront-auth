@@ -23,6 +23,17 @@ function mainProcess(event, context, callback) {
     config.AUTH_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
     config.TOKEN_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
   }
+
+  if (request.uri.endsWith('/')) {
+    var requestUrl = request.uri;
+
+    // Match url ending with '/' and replace with /index.html
+    var redirectUrl = requestUrl.replace(/\/$/, '\/index.html');
+
+    // Replace the received URI with the URI that includes the index page
+    request.uri = redirectUrl;
+  }
+
   if (request.uri.startsWith(config.CALLBACK_PATH)) {
     console.log("Callback from GitHub received");
     /** Verify code is in querystring */
@@ -126,16 +137,6 @@ function mainProcess(event, context, callback) {
     });
   } else {
     console.log("Redirecting to GitHub.");
-
-    if (request.uri.endsWith('/')) {
-      var requestUrl = request.uri;
-
-      // Match url ending with '/' and replace with /index.html
-      var redirectUrl = requestUrl.replace(/\/$/, '\/index.html');
-
-      // Replace the received URI with the URI that includes the index page
-      request.uri = redirectUrl;
-    }
     redirect(request, headers, callback);
   }
 }
