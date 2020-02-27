@@ -62,6 +62,20 @@ function mainProcess(event, context, callback) {
     config.AUTH_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
     config.TOKEN_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
   }
+
+  if (request.uri.endsWith('/')) {
+    var requestUrl = request.uri;
+
+    // Match url ending with '/' and replace with /index.html
+    var redirectUrl = requestUrl.replace(/\/$/, '\/index.html');
+
+    // Replace the received URI with the URI that includes the index page
+    request.uri = redirectUrl;
+
+    // Return to CloudFront
+    return callback(null, request);
+  }
+
   if (request.uri.startsWith(config.CALLBACK_PATH)) {
     console.log("Callback from OIDC provider received");
 
@@ -242,14 +256,7 @@ function mainProcess(event, context, callback) {
 function redirect(request, headers, callback) {
   const n = nonce.getNonce();
   config.AUTH_REQUEST.nonce = n[0];
-
-  var requestUri = request.uri;
-
-  if (requestUri.endsWith('/')) {
-    requestUri += "index.html";
-  }
-
-  config.AUTH_REQUEST.state = requestUri;
+  config.AUTH_REQUEST.state = request.uri;
 
   // Redirect to Authorization Server
   var querystring = qs.stringify(config.AUTH_REQUEST);
