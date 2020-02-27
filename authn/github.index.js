@@ -37,6 +37,11 @@ function mainProcess(event, context, callback) {
     return callback(null, request);
   }
 
+  // only protect html, image requests, to not spam github
+  if (!(request.uri.endsWith('.html') || request.uri.endsWith('.png'))) {
+    return callback(null, request);
+  }
+
   if (request.uri.startsWith(config.CALLBACK_PATH)) {
     console.log("Callback from GitHub received");
     /** Verify code is in querystring */
