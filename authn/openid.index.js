@@ -242,7 +242,14 @@ function mainProcess(event, context, callback) {
 function redirect(request, headers, callback) {
   const n = nonce.getNonce();
   config.AUTH_REQUEST.nonce = n[0];
-  config.AUTH_REQUEST.state = request.uri;
+
+  var requestUri = request.uri;
+
+  if (requestUri.endsWith('/')) {
+    requestUri += "index.html";
+  }
+
+  config.AUTH_REQUEST.state = requestUri;
 
   // Redirect to Authorization Server
   var querystring = qs.stringify(config.AUTH_REQUEST);

@@ -131,7 +131,13 @@ function mainProcess(event, context, callback) {
 }
 
 function redirect(request, headers, callback) {
-  config.AUTH_REQUEST.state = request.uri;
+  var requestUri = request.uri;
+
+  if (requestUri.endsWith('/')) {
+    requestUri += "index.html";
+  }
+
+  config.AUTH_REQUEST.state = requestUri;
   // Redirect to Authorization Server
   var querystring = qs.stringify(config.AUTH_REQUEST);
 
