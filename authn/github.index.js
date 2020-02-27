@@ -37,11 +37,6 @@ function mainProcess(event, context, callback) {
     return callback(null, request);
   }
 
-  // only protect html, image requests, to not spam github
-  if (!(request.uri.endsWith('.html') || request.uri.endsWith('.png'))) {
-    return callback(null, request);
-  }
-
   if (request.uri.startsWith(config.CALLBACK_PATH)) {
     console.log("Callback from GitHub received");
     /** Verify code is in querystring */
@@ -143,6 +138,9 @@ function mainProcess(event, context, callback) {
         auth.isAuthorized(decoded, request, callback, unauthorized, internalServerError, config);
       }
     });
+  } else if (!(request.uri.endsWith('.html') || request.uri.endsWith('.png'))) {
+    // only protect html, image requests, to not spam github
+    return callback(null, request);
   } else {
     console.log("Redirecting to GitHub.");
     redirect(request, headers, callback);
