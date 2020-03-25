@@ -18,7 +18,7 @@ exports.handler = (event, context, callback) => {
     // Get Discovery Document data
     console.log("Get discovery document data");
     axios.get(config.DISCOVERY_DOCUMENT)
-      .then(function(response) {
+      .then(function (response) {
         console.log(response);
 
         // Get jwks from discovery document url
@@ -28,14 +28,14 @@ exports.handler = (event, context, callback) => {
 
           // Get public key and verify JWT
           axios.get(discoveryDocument.jwks_uri)
-            .then(function(response) {
+            .then(function (response) {
               console.log(response);
               jwks = response.data;
 
               // Callback to main function
               mainProcess(event, context, callback);
             })
-            .catch(function(error) {
+            .catch(function (error) {
               console.log("Internal server error: " + error.message);
               internalServerError(callback);
             });
@@ -44,7 +44,7 @@ exports.handler = (event, context, callback) => {
           internalServerError(callback);
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log("Internal server error: " + error.message);
         internalServerError(callback);
       });
@@ -120,9 +120,9 @@ function mainProcess(event, context, callback) {
     const postData = qs.stringify(config.TOKEN_REQUEST);
     console.log("Requesting access token.");
     axios.post(discoveryDocument.token_endpoint, postData)
-      .then(function(response) {
+      .then(function (response) {
         console.log(response);
-        const decodedData = jwt.decode(response.data.id_token, {complete: true});
+        const decodedData = jwt.decode(response.data.id_token, { complete: true });
         console.log(decodedData);
         try {
           console.log("Searching for JWK from discovery document");
@@ -137,7 +137,7 @@ function mainProcess(event, context, callback) {
           console.log("Verifying JWT");
 
           // Verify the JWT, the payload email, and that the email ends with configured hosted domain
-          jwt.verify(response.data.id_token, pem, { algorithms: ['RS256'] }, function(err, decoded) {
+          jwt.verify(response.data.id_token, pem, { algorithms: ['RS256'] }, function (err, decoded) {
             if (err) {
               switch (err.name) {
                 case 'TokenExpiredError':
@@ -156,8 +156,8 @@ function mainProcess(event, context, callback) {
 
               // Validate nonce
               if ("cookie" in headers
-                  && "NONCE" in cookie.parse(headers["cookie"][0].value)
-                  && nonce.validateNonce(decoded.nonce, cookie.parse(headers["cookie"][0].value).NONCE)) {
+                && "NONCE" in cookie.parse(headers["cookie"][0].value)
+                && nonce.validateNonce(decoded.nonce, cookie.parse(headers["cookie"][0].value).NONCE)) {
                 console.log("Setting cookie and redirecting.");
 
                 // Once verified, create new JWT for this server
@@ -166,17 +166,17 @@ function mainProcess(event, context, callback) {
                   "statusDescription": "Found",
                   "body": "ID token retrieved.",
                   "headers": {
-                    "location" : [
+                    "location": [
                       {
                         "key": "Location",
                         "value": event.Records[0].cf.config.hasOwnProperty('test') ? (config.AUTH_REQUEST.redirect_uri + queryDict.state) : queryDict.state
                       }
                     ],
-                    "set-cookie" : [
+                    "set-cookie": [
                       {
                         "key": "Set-Cookie",
-                        "value" : cookie.serialize('TOKEN', jwt.sign(
-                          { },
+                        "value": cookie.serialize('TOKEN', jwt.sign(
+                          {},
                           config.PRIVATE_KEY.trim(),
                           {
                             "audience": headers.host[0].value,
@@ -186,14 +186,16 @@ function mainProcess(event, context, callback) {
                           } // Options
                         ), {
                           path: '/',
-                          maxAge: config.SESSION_DURATION
+                          maxAge: config.SESSION_DURATION,
+                          SameSite: 'None; Secure'
                         })
                       },
                       {
                         "key": "Set-Cookie",
-                        "value" : cookie.serialize('NONCE', '', {
+                        "value": cookie.serialize('NONCE', '', {
                           path: '/',
-                          expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+                          expires: new Date(1970, 1, 1, 0, 0, 0, 0),
+                          SameSite: 'None; Secure'
                         })
                       }
                     ],
@@ -210,16 +212,16 @@ function mainProcess(event, context, callback) {
           internalServerError(callback);
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log("Internal server error: " + error.message);
         internalServerError(callback);
       });
   } else if ("cookie" in headers
-              && "TOKEN" in cookie.parse(headers["cookie"][0].value)) {
+    && "TOKEN" in cookie.parse(headers["cookie"][0].value)) {
     console.log("Request received with TOKEN cookie. Validating.");
 
     // Verify the JWT, the payload email, and that the email ends with configured hosted domain
-    jwt.verify(cookie.parse(headers["cookie"][0].value).TOKEN, config.PUBLIC_KEY.trim(), { algorithms: ['RS256'] }, function(err, decoded) {
+    jwt.verify(cookie.parse(headers["cookie"][0].value).TOKEN, config.PUBLIC_KEY.trim(), { algorithms: ['RS256'] }, function (err, decoded) {
       if (err) {
         switch (err.name) {
           case 'TokenExpiredError':
@@ -248,8 +250,8 @@ function mainProcess(event, context, callback) {
 function redirect(request, headers, callback) {
   const n = nonce.getNonce();
   const challenge = codeChallenge.get(parseInt(config.PKCE_CODE_VERIFIER_LENGTH));
-  config.AUTH_REQUEST.code_challenge=challenge[1];
-  config.AUTH_REQUEST.code_challenge_method="S256"
+  config.AUTH_REQUEST.code_challenge = challenge[1];
+  config.AUTH_REQUEST.code_challenge_method = "S256"
   config.AUTH_REQUEST.nonce = n[0];
   config.AUTH_REQUEST.state = request.uri;
 
@@ -261,30 +263,33 @@ function redirect(request, headers, callback) {
     "statusDescription": "Found",
     "body": "Redirecting to OIDC provider",
     "headers": {
-      "location" : [{
+      "location": [{
         "key": "Location",
         "value": discoveryDocument.authorization_endpoint + '?' + querystring
       }],
-      "set-cookie" : [
+      "set-cookie": [
         {
           "key": "Set-Cookie",
-          "value" : cookie.serialize('TOKEN', '', {
+          "value": cookie.serialize('TOKEN', '', {
             path: '/',
-            expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+            expires: new Date(1970, 1, 1, 0, 0, 0, 0),
+            SameSite: 'None; Secure'
           })
         },
         {
           "key": "Set-Cookie",
-          "value" : cookie.serialize('NONCE', n[1], {
+          "value": cookie.serialize('NONCE', n[1], {
             path: '/',
-            httpOnly: true
+            httpOnly: true,
+            SameSite: 'None; Secure'
           })
         },
         {
           "key": "Set-Cookie",
-          "value" : cookie.serialize('CV', challenge[0], {
+          "value": cookie.serialize('CV', challenge[0], {
             path: '/',
-            httpOnly: true
+            httpOnly: true,
+            SameSite: 'None; Secure'
           })
         }
       ],
@@ -321,19 +326,21 @@ function unauthorized(error, error_description, error_uri, callback) {
     "statusDescription": "Unauthorized",
     "body": page,
     "headers": {
-      "set-cookie" : [
+      "set-cookie": [
         {
           "key": "Set-Cookie",
-          "value" : cookie.serialize('TOKEN', '', {
+          "value": cookie.serialize('TOKEN', '', {
             path: '/',
-            expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+            expires: new Date(1970, 1, 1, 0, 0, 0, 0),
+            SameSite: 'None; Secure'
           })
         },
         {
           "key": "Set-Cookie",
-          "value" : cookie.serialize('NONCE', '', {
+          "value": cookie.serialize('NONCE', '', {
             path: '/',
-            expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+            expires: new Date(1970, 1, 1, 0, 0, 0, 0),
+            SameSite: 'None; Secure'
           })
         }
       ],
