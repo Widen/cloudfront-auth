@@ -1,0 +1,54 @@
+name: Upload Release Assets
+
+on:
+  push:
+    tags:
+    - 'v*' # Push tag events matching v*, e.g. v1.0.0, v1.1.0
+
+jobs:
+  build:
+    name: Upload Release Assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Use Node.js 10.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+
+      - name: Build okta_native
+        run: ./build.sh okta_native
+      - name: Build rotate_key_pair
+        run: ./build.sh rotate_key_pair
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload okta_native
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./distributions/okta_native/okta_native.zip
+          asset_name: okta_native_${{ github.event.release.tag_name }}.zip
+          asset_content_type: application/zip
+      - name: Upload rotate_key_pair
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./distributions/rotate_key_pair/rotate_key_pair.zip
+          asset_name: rotate_key_pair_${{ github.event.release.tag_name }}.zip
+          asset_content_type: application/zip

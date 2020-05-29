@@ -14,6 +14,7 @@
     "axios": "^0.18.1",
     "cookie": "^0.3.1",
     "crypto": "^1.0.1",
+    "es6-dynamic-template": "^2.0.0",
     "jsonwebtoken": "^8.1.0",
     "jwk-to-pem": "^1.2.6",
     "nonce": "^1.0.4",

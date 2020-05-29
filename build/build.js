@@ -9,83 +9,105 @@ const R = require('ramda');
 var config = { AUTH_REQUEST: {}, TOKEN_REQUEST: {} };
 var oldConfig;
 
-prompt.message = colors.blue(">");
-prompt.start();
-prompt.get({
-  properties: {
-    distribution: {
-      message: colors.red("Enter distribution name"),
-      required: true
-    },
-    method: {
-      description: colors.red("Authentication methods:\n    (1) Google\n    (2) Microsoft\n    (3) GitHub\n    (4) OKTA\n    (5) Auth0\n    (6) Centrify\n    (7) OKTA Native\n\n    Select an authentication method")
-    }
-  }
-}, function (err, result) {
-  config.DISTRIBUTION = result.distribution;
+config.DISTRIBUTION = process.argv[2]
+
+if (config.DISTRIBUTION) {
+  config.AUTHN = config.DISTRIBUTION.toUpperCase();
   shell.mkdir('-p', 'distributions/' + config.DISTRIBUTION);
-  if (fs.existsSync('distributions/' + config.DISTRIBUTION + '/config.json')) {
-    oldConfig = JSON.parse(fs.readFileSync('./distributions/' + config.DISTRIBUTION + '/config.json', 'utf8'));
-  }
-  if (!fs.existsSync('distributions/' + config.DISTRIBUTION + '/id_rsa') || !fs.existsSync('./distributions/' + config.DISTRIBUTION + '/id_rsa.pub')) {
-    shell.exec("ssh-keygen -t rsa -m PEM -b 4096 -f ./distributions/" + config.DISTRIBUTION + "/id_rsa -N ''");
-    shell.exec("openssl rsa -in ./distributions/" + config.DISTRIBUTION + "/id_rsa -pubout -outform PEM -out ./distributions/" + config.DISTRIBUTION + "/id_rsa.pub");
-  }
-  switch (result.method) {
-    case '1':
-      if (R.pathOr('', ['AUTHN'], oldConfig) != "GOOGLE") {
-        oldConfig = undefined;
-      }
-      config.AUTHN = "GOOGLE";
-      googleConfiguration();
+  switch (config.DISTRIBUTION) {
+    case 'okta_native':
+      genericOktaConfiguration();
       break;
-    case '2':
-      if (R.pathOr('', ['AUTHN'], oldConfig) != "MICROSOFT") {
-        oldConfig = undefined;
-      }
-      config.AUTHN = "MICROSOFT";
-      microsoftConfiguration();
-      break;
-    case '3':
-      if (R.pathOr('', ['AUTHN'], oldConfig) != "GITHUB") {
-        oldConfig = undefined;
-      }
-      config.AUTHN = "GITHUB";
-      githubConfiguration();
-      break;
-    case '4':
-      if (R.pathOr('', ['AUTHN'], oldConfig) != "OKTA") {
-        oldConfig = undefined;
-      }
-      config.AUTHN = "OKTA";
-      oktaConfiguration();
-      break;
-    case '5':
-      if (R.pathOr('', ['AUTHN'], oldConfig) != "AUTH0") {
-        oldConfig = undefined;
-      }
-      config.AUTHN = "AUTH0";
-      auth0Configuration();
-      break;
-    case '6':
-      if (R.pathOr('', ['AUTHN'], oldConfig) != "CENTRIFY") {
-        oldConfig = undefined;
-      }
-      config.AUTHN = "CENTRIFY";
-      centrifyConfiguration();
-      break;
-    case '7':
-      if (R.pathOr('', ['AUTHN'], oldConfig) != "OKTA_NATIVE") {
-        oldConfig = undefined;
-      }
-      config.AUTHN = "OKTA_NATIVE";
-      oktaConfiguration();
+    case 'rotate_key_pair':
+      buildRotateKeyPair();
       break;
     default:
-      console.log("Method not recognized. Stopping build...");
+      console.log(`Unsupported package name "${config.DISTRIBUTION}". Stopping build...`);
       process.exit(1);
   }
-});
+} else {
+  customConfiguration();
+}
+
+function customConfiguration() {
+  prompt.message = colors.blue(">");
+  prompt.start();
+  prompt.get({
+    properties: {
+      distribution: {
+        message: colors.red("Enter distribution name"),
+        required: true
+      },
+      method: {
+        description: colors.red("Authentication methods:\n    (1) Google\n    (2) Microsoft\n    (3) GitHub\n    (4) OKTA\n    (5) Auth0\n    (6) Centrify\n    (7) OKTA Native\n\n    Select an authentication method")
+      }
+    }
+  }, function (err, result) {
+    config.DISTRIBUTION = result.distribution;
+    shell.mkdir('-p', 'distributions/' + config.DISTRIBUTION);
+    if (fs.existsSync('distributions/' + config.DISTRIBUTION + '/config.json')) {
+      oldConfig = JSON.parse(fs.readFileSync('./distributions/' + config.DISTRIBUTION + '/config.json', 'utf8'));
+    }
+    if (!fs.existsSync('distributions/' + config.DISTRIBUTION + '/id_rsa') || !fs.existsSync('./distributions/' + config.DISTRIBUTION + '/id_rsa.pub')) {
+      shell.exec("ssh-keygen -t rsa -m PEM -b 4096 -f ./distributions/" + config.DISTRIBUTION + "/id_rsa -N ''");
+      shell.exec("openssl rsa -in ./distributions/" + config.DISTRIBUTION + "/id_rsa -pubout -outform PEM -out ./distributions/" + config.DISTRIBUTION + "/id_rsa.pub");
+    }
+    switch (result.method) {
+      case '1':
+        if (R.pathOr('', ['AUTHN'], oldConfig) != "GOOGLE") {
+          oldConfig = undefined;
+        }
+        config.AUTHN = "GOOGLE";
+        googleConfiguration();
+        break;
+      case '2':
+        if (R.pathOr('', ['AUTHN'], oldConfig) != "MICROSOFT") {
+          oldConfig = undefined;
+        }
+        config.AUTHN = "MICROSOFT";
+        microsoftConfiguration();
+        break;
+      case '3':
+        if (R.pathOr('', ['AUTHN'], oldConfig) != "GITHUB") {
+          oldConfig = undefined;
+        }
+        config.AUTHN = "GITHUB";
+        githubConfiguration();
+        break;
+      case '4':
+        if (R.pathOr('', ['AUTHN'], oldConfig) != "OKTA") {
+          oldConfig = undefined;
+        }
+        config.AUTHN = "OKTA";
+        oktaConfiguration();
+        break;
+      case '5':
+        if (R.pathOr('', ['AUTHN'], oldConfig) != "AUTH0") {
+          oldConfig = undefined;
+        }
+        config.AUTHN = "AUTH0";
+        auth0Configuration();
+        break;
+      case '6':
+        if (R.pathOr('', ['AUTHN'], oldConfig) != "CENTRIFY") {
+          oldConfig = undefined;
+        }
+        config.AUTHN = "CENTRIFY";
+        centrifyConfiguration();
+        break;
+      case '7':
+        if (R.pathOr('', ['AUTHN'], oldConfig) != "OKTA_NATIVE") {
+          oldConfig = undefined;
+        }
+        config.AUTHN = "OKTA_NATIVE";
+        oktaConfiguration();
+        break;
+      default:
+        console.log("Method not recognized. Stopping build...");
+        process.exit(1);
+    }
+  });
+}
 
 function microsoftConfiguration() {
   prompt.message = colors.blue(">>");
@@ -368,23 +390,58 @@ function oktaConfiguration() {
     config.TOKEN_REQUEST.client_id = result.CLIENT_ID;
     config.TOKEN_REQUEST.redirect_uri = result.REDIRECT_URI;
     config.TOKEN_REQUEST.grant_type = 'authorization_code';
-    var files = ['config.json', 'index.js', 'auth.js', 'nonce.js'];
-    if(result.CLIENT_SECRET) {
+    if (config.AUTHN == 'OKTA') {
       config.TOKEN_REQUEST.client_secret = result.CLIENT_SECRET;
-      shell.cp('./authn/openid.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
-    } else {
+    } else if (config.AUTHN == 'OKTA_NATIVE') {
       config.PKCE_CODE_VERIFIER_LENGTH = result.PKCE_CODE_VERIFIER_LENGTH || "96";
-      shell.cp('./code-challenge.js', './distributions/' + config.DISTRIBUTION + '/code-challenge.js');
-      shell.cp('./authn/pkce.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
-      files.push('code-challenge.js');
     }
-    config.AUTHZ = "OKTA";
 
-    shell.cp('./nonce.js', './distributions/' + config.DISTRIBUTION + '/nonce.js');
-    fs.writeFileSync('distributions/' + config.DISTRIBUTION + '/config.json', JSON.stringify(result, null, 4));
-    shell.cp('./authz/okta.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
-    writeConfig(config, zip, files);
+    buildOkta();
   });
+}
+
+function genericOktaConfiguration() {
+  config.PRIVATE_KEY = '${private-key}';
+  config.PUBLIC_KEY = '${public-key}';
+
+  config.DISCOVERY_DOCUMENT = '${base-url}/.well-known/openid-configuration';
+  config.SESSION_DURATION = '${session-duration}';
+
+  config.BASE_URL = '${base-url}';
+  config.CALLBACK_PATH = '${callback-path}';
+
+  config.AUTH_REQUEST.client_id = '${client-id}';
+  config.AUTH_REQUEST.response_type = 'code';
+  config.AUTH_REQUEST.scope = 'openid email';
+  config.AUTH_REQUEST.redirect_uri = 'https://${domain-name}${callback-path}';
+
+  config.TOKEN_REQUEST.client_id = '${client-id}';
+  config.TOKEN_REQUEST.redirect_uri = 'https://${domain-name}${callback-path}';
+  config.TOKEN_REQUEST.grant_type = 'authorization_code';
+  if (config.AUTHN == 'OKTA') {
+    config.TOKEN_REQUEST.client_secret = '${client-secret}';
+  } else if (config.AUTHN == 'OKTA_NATIVE') {
+    config.PKCE_CODE_VERIFIER_LENGTH = '${pkce-code-verifier-length}';
+  }
+
+  buildOkta(true);
+}
+
+function buildOkta(isGeneric) {
+  var files = ['config.json', 'config.js', 'index.js', 'auth.js', 'nonce.js'];
+  if (config.AUTHN == 'OKTA') {
+    shell.cp('./authn/openid.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
+  } else if (config.AUTHN == 'OKTA_NATIVE') {
+    shell.cp('./code-challenge.js', './distributions/' + config.DISTRIBUTION + '/code-challenge.js');
+    shell.cp('./authn/pkce.index.js', './distributions/' + config.DISTRIBUTION + '/index.js');
+    files.push('code-challenge.js');
+  }
+  config.AUTHZ = "OKTA";
+
+  shell.cp('./nonce.js', './distributions/' + config.DISTRIBUTION + '/nonce.js');
+  shell.cp('./authz/okta.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
+  shell.cp(isGeneric ? './config/generic.config.js' : './config/custom.config.js', './distributions/' + config.DISTRIBUTION + '/config.js');
+  writeConfig(config, zip, files);
 }
 
 function githubConfiguration() {
@@ -581,6 +638,11 @@ function centrifyConfiguration() {
     shell.cp('./authz/centrify.js', './distributions/' + config.DISTRIBUTION + '/auth.js');
     writeConfig(config, zip, ['config.json', 'index.js', 'auth.js', 'nonce.js']);
   });
+}
+
+function buildRotateKeyPair() {
+  shell.exec('zip -q -j distributions/' + config.DISTRIBUTION + '/' + config.DISTRIBUTION + '.zip ./rotate-key-pair/index.js');
+  console.log(colors.green("Done... created Lambda function distributions/" + config.DISTRIBUTION + "/" + config.DISTRIBUTION + ".zip"));
 }
 
 function zip(files) {

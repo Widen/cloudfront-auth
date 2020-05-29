@@ -1,0 +1,28 @@
+name: Generic Package CI
+on: push
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - run: ./build.sh okta_native
+    - run: test -f distributions/okta_native/okta_native.zip
+    - run: ./build.sh rotate_key_pair
+    - run: test -f distributions/rotate_key_pair/rotate_key_pair.zip
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: packages_${{ matrix.node-version }}
+        path: distributions/*/*.zip
