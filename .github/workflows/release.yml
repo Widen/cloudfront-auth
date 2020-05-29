@@ -41,7 +41,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./distributions/okta_native/okta_native.zip
-          asset_name: okta_native_${{ github.event.release.tag_name }}.zip
+          asset_name: okta_native_${GITHUB_REF#refs/tags/}.zip
           asset_content_type: application/zip
       - name: Upload rotate_key_pair
         uses: actions/upload-release-asset@v1
@@ -50,5 +50,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./distributions/rotate_key_pair/rotate_key_pair.zip
-          asset_name: rotate_key_pair_${{ github.event.release.tag_name }}.zip
+          asset_name: rotate_key_pair_${GITHUB_REF#refs/tags/}.zip
           asset_content_type: application/zip
