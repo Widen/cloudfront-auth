@@ -5,7 +5,7 @@ const cookie = require('cookie');
 const jwkToPem = require('jwk-to-pem');
 const auth = require('./auth.js');
 const nonce = require('./nonce.js');
-const codeChallenge = require('./code_challenge.js');
+const codeChallenge = require('./code-challenge.js');
 const axios = require('axios');
 var discoveryDocument;
 var jwks;
