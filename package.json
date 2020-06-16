@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "cd tests && npm install && cd .. && node tests/tests.js",
+    "mocha": "mocha './mocha/*.js'",
     "build": "npm install && cd build && npm install && cd .. && node build/build.js"
   },
   "author": "Widen Enterprises",
@@ -20,5 +21,10 @@
     "nonce": "^1.0.4",
     "querystring": "^0.2.0",
     "url": "^0.11.0"
+  },
+  "devDependencies": {
+    "aws-sdk-mock": "^5.1.0",
+    "mocha": "^8.0.1",
+    "sinon": "^9.0.2"
   }
 }

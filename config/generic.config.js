@@ -2,12 +2,12 @@ const fsPromises = require('fs').promises;
 const aws = require('aws-sdk');
 const fillTemplate = require('es6-dynamic-template');
 
-module.exports.getConfig = function (functionName, callback) {
+module.exports.getConfig = function (fileName, functionName, callback) {
   // Remove the 'us-east-1.' prefix that exists on Lambda@Edge replicas
   const name = functionName.replace(/^us-east-1./, '');
 
   // Read config file
-  const readFilePromise = fsPromises.readFile('config.json', 'utf8');
+  const readFilePromise = fsPromises.readFile(fileName, 'utf8');
 
   // Get parameters from SSM Parameter Store
   const ssm = new aws.SSM({ region: 'us-east-1' });

@@ -13,7 +13,7 @@ var config;
 
 exports.handler = (event, context, callback) => {
   if (typeof jwks == 'undefined' || typeof discoveryDocument == 'undefined' || typeof config == 'undefined') {
-    cfg.getConfig(context.functionName, function(error, result) {
+    cfg.getConfig('config.json', context.functionName, function(error, result) {
       if (error) {
         console.log("Internal server error: " + error.message);
         internalServerError(callback);

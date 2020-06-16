@@ -22,6 +22,8 @@ jobs:
     - run: ./build.sh rotate_key_pair
     - run: test -f distributions/rotate_key_pair/rotate_key_pair.zip
 
+    - run: npm run-script mocha
+
     - uses: actions/upload-artifact@v2
       with:
         name: packages_${{ matrix.node-version }}

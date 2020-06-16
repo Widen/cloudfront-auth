@@ -1,0 +1,23 @@
+{
+    "AUTH_REQUEST": {
+        "client_id": "${client-id}",
+        "response_type": "code",
+        "scope": "openid email",
+        "redirect_uri": "https://${domain-name}${callback-path}"
+    },
+    "TOKEN_REQUEST": {
+        "client_id": "${client-id}",
+        "redirect_uri": "https://${domain-name}${callback-path}",
+        "grant_type": "authorization_code"
+    },
+    "DISTRIBUTION": "okta_native",
+    "AUTHN": "OKTA_NATIVE",
+    "PRIVATE_KEY": "${private-key}",
+    "PUBLIC_KEY": "${public-key}",
+    "DISCOVERY_DOCUMENT": "${base-url}/.well-known/openid-configuration",
+    "SESSION_DURATION": "${session-duration}",
+    "BASE_URL": "${base-url}",
+    "CALLBACK_PATH": "${callback-path}",
+    "PKCE_CODE_VERIFIER_LENGTH": "${pkce-code-verifier-length}",
+    "AUTHZ": "OKTA"
+}
