@@ -188,12 +188,12 @@ function mainProcess(event, context, callback) {
                           {
                             "audience": headers.host[0].value,
                             "subject": auth.getSubject(decodedData),
-                            "expiresIn": config.SESSION_DURATION,
+                            "expiresIn": parseInt(config.SESSION_DURATION),
                             "algorithm": "RS256"
                           } // Options
                         ), {
                           path: '/',
-                          maxAge: config.SESSION_DURATION
+                          maxAge: parseInt(config.SESSION_DURATION)
                         })
                       },
                       {
