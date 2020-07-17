@@ -17,12 +17,12 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - run: ./build.sh okta_native
-    - run: test -f distributions/okta_native/okta_native.zip
-    - run: ./build.sh rotate_key_pair
-    - run: test -f distributions/rotate_key_pair/rotate_key_pair.zip
+    - run: npm run-script test-ci
 
-    - run: npm run-script mocha
+    - run: npm run-script build-ci okta_native
+    - run: test -f distributions/okta_native/okta_native.zip
+    - run: npm run-script build-ci rotate_key_pair
+    - run: test -f distributions/rotate_key_pair/rotate_key_pair.zip
 
     - uses: actions/upload-artifact@v2
       with:

@@ -21,13 +21,13 @@ jobs:
         with:
           node-version: '10.x'
 
-      - name: Build okta_native
-        run: ./build.sh okta_native
-      - name: Build rotate_key_pair
-        run: ./build.sh rotate_key_pair
+      - name: Run tests
+        run: npm run-script test-ci
 
-      - name: Run Mocha tests
-        run: npm run-script mocha
+      - name: Build okta_native
+        run: npm run-script build-ci okta_native
+      - name: Build rotate_key_pair
+        run: npm run-script build-ci rotate_key_pair
 
       - name: Create Release
         id: create_release

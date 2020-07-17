@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "cd tests && npm install && cd .. && node tests/tests.js",
-    "mocha": "mocha './mocha/*.js'",
-    "build": "npm install && cd build && npm install && cd .. && node build/build.js"
+    "test-ci": "npm ci && mocha './mocha/*.js'",
+    "build": "npm install && cd build && npm install && cd .. && node build/build.js",
+    "build-ci": "npm ci --production && cd build && npm ci --production && cd .. && node build/build.js"
   },
   "author": "Widen Enterprises",
   "repository": "github:widen/cloudfront-auth",
