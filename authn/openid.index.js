@@ -294,9 +294,9 @@ function unauthorized(error, error_description, error_uri, callback) {
   </html>
   `;
 
-  page = page.replace(/%error%/g, error);
-  page = page.replace(/%error_description%/g, error_description);
-  page = page.replace(/%error_uri%/g, error_uri);
+  page = page.replace(/%error%/g, encodeURI(error));
+  page = page.replace(/%error_description%/g, encodeURI(error_description));
+  page = page.replace(/%error_uri%/g, encodeURI(error_uri));
 
   // Unauthorized access attempt. Reset token and nonce cookies
   const response = {
