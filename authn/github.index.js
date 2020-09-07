@@ -136,7 +136,9 @@ function mainProcess(event, context, callback) {
       }
     });
   } else if ("user-agent" in headers
-              && "Slackbot-LinkExpanding" in headers["user-agent"][0].value) {
+              && headers["user-agent"].length > 0
+              && headers["user-agent"][0].value
+              && headers["user-agent"][0].value.includes("Slackbot-LinkExpanding")) {
     // Request from slackbot for link unfurl
     // TODO only serve up partial page?
     console.log("Authorizing Slackbot for link unfurl.");
