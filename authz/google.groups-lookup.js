@@ -24,12 +24,12 @@ function isAuthorized(decoded, request, callback, unauthorized, internalServerEr
     .then(function(response) {
       for (var i = 0; i < googleAuthz.cloudfront_authz_groups.length; i++) {
         var authorization = response.data.token_type + ' ' + response.data.access_token;
-        var membershipGet = 'https://www.googleapis.com/admin/directory/v1/groups/' + googleAuthz.cloudfront_authz_groups[i] + '/hasMember/' + decoded.sub;
+        var membershipGet = 'https://www.googleapis.com/admin/directory/v1/groups/' + googleAuthz.cloudfront_authz_groups[i] + '/members/' + decoded.sub;
         console.log(membershipGet + ': ' + authorization);
         axios.get(membershipGet, { headers: {'Authorization': authorization}})
           .then(function(response) {
             groupChecks++;
-            if (!response.data.error && response.data.isMember == true && decoded.aud === request.headers.host[0].value && decoded.sub.endsWith(config.HOSTED_DOMAIN)) {
+            if (!response.data.error && response.data.status === 'ACTIVE' && decoded.aud === request.headers.host[0].value) {
               callback(null, request);
             } else if (groupChecks >= googleAuthz.cloudfront_authz_groups.length) {
               unauthorized('Unauthorized', 'User ' + decoded.sub + ' is not permitted.', '', callback);
