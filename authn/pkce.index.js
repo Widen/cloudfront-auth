@@ -135,16 +135,12 @@ function mainProcess(event, context, callback) {
           console.log("Searching for JWK from discovery document");
 
           // Search for correct JWK from discovery document and create PEM
-          var pem = "";
-          for (var i = 0; i < jwks.keys.length; i++) {
-            if (decodedData.header.kid === jwks.keys[i].kid) {
-              pem = jwkToPem(jwks.keys[i]);
-            }
-          }
-          console.log("Verifying JWT");
+          var pem = createPEM(decodedData.header.kid);
 
-          // Verify the JWT, the payload email, and that the email ends with configured hosted domain
-          jwt.verify(response.data.id_token, pem, { algorithms: ['RS256'] }, function(err, decoded) {
+          console.log("Verifying JWT");
+          const access_token = response.data.access_token;
+          // Verify the access token JWT, the payload email, and that the email ends with configured hosted domain
+          jwt.verify(response.data.access_token, pem, { algorithms: ['RS256'] }, function(err, decoded) {
             if (err) {
               switch (err.name) {
                 case 'TokenExpiredError':
@@ -182,17 +178,10 @@ function mainProcess(event, context, callback) {
                     "set-cookie" : [
                       {
                         "key": "Set-Cookie",
-                        "value" : cookie.serialize('TOKEN', jwt.sign(
-                          { },
-                          config.PRIVATE_KEY.trim(),
-                          {
-                            "audience": headers.host[0].value,
-                            "subject": auth.getSubject(decodedData),
-                            "expiresIn": parseInt(config.SESSION_DURATION),
-                            "algorithm": "RS256"
-                          } // Options
-                        ), {
+                        "value" : cookie.serialize('TOKEN', access_token, {
                           path: '/',
+                          httpOnly: true,
+                          secure: true,
                           maxAge: parseInt(config.SESSION_DURATION)
                         })
                       },
@@ -224,9 +213,11 @@ function mainProcess(event, context, callback) {
   } else if ("cookie" in headers
               && "TOKEN" in cookie.parse(headers["cookie"][0].value)) {
     console.log("Request received with TOKEN cookie. Validating.");
-
+    const decodedToken = jwt.decode(cookie.parse(headers["cookie"][0].value).TOKEN, {complete: true});
+    // Search for correct JWK from discovery document and create PEM
+    var pem = createPEM(decodedToken.header.kid);
     // Verify the JWT, the payload email, and that the email ends with configured hosted domain
-    jwt.verify(cookie.parse(headers["cookie"][0].value).TOKEN, config.PUBLIC_KEY.trim(), { algorithms: ['RS256'] }, function(err, decoded) {
+    jwt.verify(cookie.parse(headers["cookie"][0].value).TOKEN, pem, { algorithms: ['RS256'] }, function(err, decoded) {
       if (err) {
         switch (err.name) {
           case 'TokenExpiredError':
@@ -249,6 +240,16 @@ function mainProcess(event, context, callback) {
   } else {
     console.log("Redirecting to OIDC provider.");
     redirect(request, headers, callback);
+  }
+
+  function createPEM(kid) {
+    var pem = "";
+    for (var i = 0; i < jwks.keys.length; i++) {
+      if (kid === jwks.keys[i].kid) {
+        pem = jwkToPem(jwks.keys[i]);
+      }
+    }
+    return pem;
   }
 }
 
