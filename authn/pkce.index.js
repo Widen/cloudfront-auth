@@ -140,7 +140,7 @@ function mainProcess(event, context, callback) {
           console.log("Verifying JWT");
           const access_token = response.data.access_token;
           // Verify the access token JWT, the payload email, and that the email ends with configured hosted domain
-          jwt.verify(response.data.access_token, pem, { algorithms: ['RS256'] }, function(err, decoded) {
+          jwt.verify(access_token, pem, { algorithms: ['RS256'] }, function(err, decoded) {
             if (err) {
               switch (err.name) {
                 case 'TokenExpiredError':
@@ -160,7 +160,7 @@ function mainProcess(event, context, callback) {
               // Validate nonce
               if ("cookie" in headers
                   && "NONCE" in cookie.parse(headers["cookie"][0].value)
-                  && nonce.validateNonce(decoded.nonce, cookie.parse(headers["cookie"][0].value).NONCE)) {
+                  && nonce.validateNonce(decodedData.payload.nonce, cookie.parse(headers["cookie"][0].value).NONCE)) {
                 console.log("Setting cookie and redirecting.");
 
                 // Once verified, create new JWT for this server
