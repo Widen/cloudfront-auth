@@ -130,12 +130,14 @@ function mainProcess(event, context, callback) {
       .then(function(response) {
         console.log(response);
         const decodedData = jwt.decode(response.data.id_token, {complete: true});
-        console.log(decodedData);
+        const decodedAccessTokenData = jwt.decode(response.data.access_token, {complete: true});
+        console.log("Decoded id_token: ", decodedData);
+        console.log("Decoded access_token", decodedAccessTokenData);
         try {
           console.log("Searching for JWK from discovery document");
 
           // Search for correct JWK from discovery document and create PEM
-          var pem = createPEM(decodedData.header.kid);
+          var pem = createPEM(decodedAccessTokenData.header.kid); //We are verifying the access token
 
           console.log("Verifying JWT");
           const access_token = response.data.access_token;
