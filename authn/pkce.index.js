@@ -72,9 +72,6 @@ function mainProcess(event, context, callback) {
 
     // Replace the received URI with the URI that includes the index page
     request.uri = redirectUrl;
-
-    // Return to CloudFront
-    return callback(null, request);
   }
 
   if (request.uri.startsWith(config.CALLBACK_PATH)) {
@@ -253,6 +250,14 @@ function mainProcess(event, context, callback) {
         auth.isAuthorized(decoded, request, callback, unauthorized, internalServerError, config);
       }
     });
+  } else if ("user-agent" in headers
+              && headers["user-agent"].length > 0
+              && headers["user-agent"][0].value
+              && headers["user-agent"][0].value.includes("Slackbot-LinkExpanding")) {
+    // Request from slackbot for link unfurl
+    // TODO only serve up partial page?
+    console.log("Authorizing Slackbot for link unfurl.");
+    auth.isAuthorized(null, request, callback, unauthorized, internalServerError, config);
   } else {
     console.log("Redirecting to OIDC provider.");
     redirect(request, headers, callback);
