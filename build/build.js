@@ -5,9 +5,43 @@ const axios = require('axios');
 const colors = require('colors/safe');
 const url = require('url');
 const R = require('ramda');
+const parseArgs = require('minimist');
 
 var config = { AUTH_REQUEST: {}, TOKEN_REQUEST: {} };
 var oldConfig;
+
+const envParams = [
+    'TENANT',
+    'CLIENT_ID',
+    'CLIENT_SECRET',
+    'REDIRECT_URI',
+    'SESSION_DURATION',
+    'AUTHZ',
+    'JSON_USERNAME_LOOKUP',
+    'HD',
+    'AUTHZ',
+    'JSON_EMAIL_LOOKUP',
+    'MOVE',
+    'SERVICE_ACCOUNT_EMAIL',
+    'PKCE_CODE_VERIFIER_LENGTH',
+    'ORGANIZATION',
+    'BASE_URL'
+]
+
+const args = parseArgs(process.argv.slice(2), {
+  string: [
+    'distribution',
+    'method',
+    ...envParams
+  ],
+  alias: R.zipObj(envParams, envParams.map(v => v.toLowerCase().replace(/\_/g, '-')))
+});
+
+prompt.override = R.mergeRight(
+   R.pick(envParams, process.env),
+   args
+)
+
 
 prompt.message = colors.blue(">");
 prompt.start();
