@@ -107,7 +107,7 @@ const testCases = [
 			'JSON_EMAIL_LOOKUP': 'json-email-lookup-env',
 			'ORGANIZATION': 'organization-env'
 		},
-		expectedOverrides: {
+		'expectedOverrides': {
 			'SESSION_DURATION': 'session_duration-arg',
 			'JSON_EMAIL_LOOKUP': 'json_email_lookup-arg',
 			'ORGANIZATION': 'organization-env'
