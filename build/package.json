@@ -4,7 +4,7 @@
   "description": "Build files for cloudfront-auth",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "author": "",
   "license": "ISC",
@@ -16,5 +16,9 @@
     "ramda": "^0.27.0",
     "shelljs": "^0.8.0",
     "url": "^0.11.0"
+  },
+  "devDependencies": {
+    "jest": "^26.6.3",
+    "rewire": "^5.0.0"
   }
 }
