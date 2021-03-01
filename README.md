@@ -135,6 +135,32 @@ Session duration is defined as the number of hours that the JWT is valid for. Af
 ## Testing
 Detailed instructions on testing your function can be found [in the Wiki](https://github.com/Widen/cloudfront-auth/wiki/Debug-&-Test).
 
+## Non-interactive configuration
+
+Configuration of the Lambda@Edge deployment package can be done in a non-interactive manner by defining the configuration using command-line arguments to build.sh, environment variables or both. Table below describes the names of the variables and arguments and the IdPs they apply to.
+
+|Command-line argument       |Environment variable      |Google|Microsoft|GitHub|Okta|Auth0|Centrify|Okta Native|About|
+|----------------------------|--------------------------|:----:|:-------:|:----:|:--:|:---:|:------:|:---------:|-----|
+|\-\-distribution            |                          |x     |x        |x     |x   |x    |x       |x          | Distribution name |
+|\-\-method                  |                          |x     |x        |x     |x   |x    |x       |x          | 1=Google, 2=Microsoft, 3=GitHub, 4=Okta, 5=Auth0, 6=Centrify, 7=Okta Native|
+|\-\-tenant                   |TENANT                   |      |x        |      |    |     |        |           | |
+|\-\-client-id                |CLIENT_ID                |x     |x        |x     |x   |x    |x       |x          | |
+|\-\-client-secret            |CLIENT_SECRET            |x     |x        |x     |x   |x    |x       |           | |
+|\-\-redirect-uri             |REDIRECT_URI             |x     |x        |x     |x   |x    |x       |x          | |
+|\-\-session-duration         |SESSION_DURATION         |x     |x        |x     |x   |x    |x       |x          |Hours |
+|\-\-authz                    |AUTHZ                    |1=Hosted Domain, 2=HTTP Email lookup, 3=Google Groups lookup|1=Azure AD, 2=JSON Username Lookup| | | | | |IdP-specific authorization method|
+|\-\-json-username-lookup     |JSON_USERNAME_LOOKUP     |      |x        |      |    |     |        |           |JSON Username Lookup URL |
+|\-\-hd                       |HD                       |x     |         |      |    |     |        |           |Hosted Domain |
+|\-\-json-email-lookup        |JSON_EMAIL_LOOKUP        |x     |         |      |    |     |        |           |JSON email lookup endpoint for  |
+|\-\-move                     |MOVE                     |x     |         |      |    |     |        |           |Provide a dummy value if using Google Groups lookup and you have google-authz.json already in your distribution directory |
+|\-\-service-account-email    |SERVICE_ACCOUNT_EMAIL    |      |         |      |    |     |        |           | |
+|\-\-pkce-code-verifier-length|PKCE_CODE_VERIFIER_LENGTH|      |         |      |    |     |        |x          | |
+|\-\-organization             |ORGANIZATION             |      |         |x     |    |     |        |           | |
+|\-\-base-url                 |BASE_URL                 |      |         |      |x   |x    |x       |x          | |
+
+
+The command line arguments are of form \-\-argument=value. Command-line arguments always take precedence over environment variables.
+
 ## Build Requirements
  - [npm](https://www.npmjs.com/) ^5.6.0
  - [node](https://nodejs.org/en/) ^10.0
