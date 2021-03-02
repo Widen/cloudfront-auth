@@ -112,6 +112,13 @@ function microsoftConfiguration() {
         required: true,
         default: R.pathOr('', ['AUTH_REQUEST', 'redirect_uri'], oldConfig)
       },
+      CUSTOM_SIGNING_KEYS: {
+        description: colors.red("Use custom signing keys\n  (1) No\n   (2) Yes"),
+        pattern: /^[1-2]$/,
+        message: colors.red("Please choose:\n   (1) No\n   (2) Yes"),
+        required: true,
+        default: R.pathOr('', ['CUSTOM_SIGNING_KEYS'], oldConfig)
+      },
       SESSION_DURATION: {
         message: colors.red("Session Duration (hours)"),
         required: true,
@@ -125,7 +132,9 @@ function microsoftConfiguration() {
     config.PRIVATE_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa', 'utf8');
     config.PUBLIC_KEY = fs.readFileSync('distributions/' + config.DISTRIBUTION + '/id_rsa.pub', 'utf8');
     config.TENANT = result.TENANT;
-    config.DISCOVERY_DOCUMENT = 'https://login.microsoftonline.com/' + result.TENANT + '/.well-known/openid-configuration';
+    config.DISCOVERY_DOCUMENT = result.CUSTOM_SIGNING_KEYS === '1'
+      ? `https://login.microsoftonline.com/${result.TENANT}/.well-known/openid-configuration`
+      : `https://login.microsoftonline.com/${result.TENANT}/.well-known/openid-configuration?appid=${result.CLIENT_ID}`;
     config.SESSION_DURATION = parseInt(result.SESSION_DURATION, 10) * 60 * 60;
 
     config.CALLBACK_PATH = url.parse(result.REDIRECT_URI).pathname;
