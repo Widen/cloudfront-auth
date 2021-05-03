@@ -412,7 +412,7 @@ function genericOktaConfiguration() {
 
   config.AUTH_REQUEST.client_id = '${client-id}';
   config.AUTH_REQUEST.response_type = 'code';
-  config.AUTH_REQUEST.scope = 'openid email';
+  config.AUTH_REQUEST.scope = '${scope}';
   config.AUTH_REQUEST.redirect_uri = 'https://${domain-name}${callback-path}';
 
   config.TOKEN_REQUEST.client_id = '${client-id}';
