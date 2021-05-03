@@ -159,6 +159,7 @@ The supported values of `package` are:
             * `/{name}/callback-path` (e.g. `/callback`)
             * `/{name}/session-duration` (in seconds)
             * `/{name}/pkce-code-verifier-length` (from 43 to 128)
+            * `/{name}/scope` (e.g. `openid email`)
         1. Download the latest `okta_native_*.zip` asset from the Releases page
 1. Upload the `zip` file using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
 
