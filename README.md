@@ -153,7 +153,7 @@ The supported values of `package` are:
         1. Find the resulting `zip` file in your distribution folder
     * For a generic package:
         1. Create the parameters below in the AWS Systems Manager Parameter Store in the `us-east-1` region. Replace `{name}` with the name that you will give the Lambda authentication function.
-            * `/{name}/base-url` (e.g. `https://my-org.okta.com`)
+            * `/{name}/base-url` (e.g. `https://my-org.okta.com/oauth2/default`)
             * `/{name}/client-id` (from the OKTA application)
             * `/{name}/domain-name` (e.g. `my-site.cloudfront.net`)
             * `/{name}/callback-path` (e.g. `/callback`)
