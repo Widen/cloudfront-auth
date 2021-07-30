@@ -175,7 +175,7 @@ If deploying a generic package, you also need to follow the steps below in the `
 1. Execute `./build.sh rotate_key_pair`
 1. Create a Lambda rotation function with the following configuration:
     * Function code: Use the `rotate_key_pair.zip` file found in the distributions folder
-    * Runtime: **Node.js 10.x** or later
+    * Runtime: **Node.js 14.x** or later
     * Handler: `index.handler`
     * Timeout: 30 sec
 1. Modify the role on the Lambda rotation function to include a policy that:
