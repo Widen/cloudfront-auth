@@ -30,16 +30,7 @@ The build script prompts you for the required configuration parameters, which ar
 
 A generic package retrieves its configuration at runtime from the [AWS Systems Manager](https://aws.amazon.com/systems-manager/) Parameter Store and [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/). Currently, support for this type of package has been added for OKTA Native only. To disable all issued JWTs, rotate the key pair using the Secrets Manager console.
 
-Generic packages are available for download from the Releases page of this GitHub repository. Or, to build a generic package yourself, execute:
-
-```bash
-./build.sh package
-```
-
-The supported values of `package` are:
-
-* `okta_native` - builds a generic Lambda package for OKTA Native authentication
-* `rotate_key_pair` - builds a Lambda package for rotating the RSA keys in AWS Secrets Manager
+Generic packages are pre-built and available for download from the Releases page of this GitHub repository. [Terraform modules](./infra/terraform/README.md) are available for downloading and deploying generic packages and their configuration resources.
 
 ## Identity Provider Guides
 
@@ -146,42 +137,14 @@ The supported values of `package` are:
     1. Client Id from the application created in our previous step (can be found at the bottom of the general tab)
     1. Base Url
         1. This is named the 'Org URL' and can be found in the top right of the Dashboard tab.
-1. Decide on whether you want to use a custom package or a generic package
-    * For a custom package:
-        1. Execute `./build.sh` in the downloaded directory. NPM will run to download dependencies and an RSA key will be generated.
-        1. Choose `OKTA Native` as the authorization method and enter the values for Base URL (Org URL), Client ID, PKCE Code Verifier Length, Redirect URI, and Session Duration
-        1. Find the resulting `zip` file in your distribution folder
-    * For a generic package:
-        1. Create the parameters below in the AWS Systems Manager Parameter Store in the `us-east-1` region. Replace `{name}` with the name that you will give the Lambda authentication function.
-            * `/{name}/base-url` (e.g. `https://my-org.okta.com/oauth2/default`)
-            * `/{name}/client-id` (from the OKTA application)
-            * `/{name}/domain-name` (e.g. `my-site.cloudfront.net`)
-            * `/{name}/callback-path` (e.g. `/callback`)
-            * `/{name}/session-duration` (in seconds)
-            * `/{name}/pkce-code-verifier-length` (from 43 to 128)
-            * `/{name}/scope` (e.g. `openid email`)
-        1. Download the latest `okta_native_*.zip` asset from the Releases page
-1. Upload the `zip` file using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
+1. To use the [generic package](#generic-packages), jump straight to [Terraform Modules for CloudFront Authentication](./infra/terraform/README.md).
+1. Execute `./build.sh` in the downloaded directory. NPM will run to download dependencies and a RSA key will be generated.
+1. Choose `OKTA Native` as the authorization method and enter the values for Base URL (Org URL), Client ID, PKCE Code Verifier Length, Redirect URI, and Session Duration
+1. Upload the resulting `zip` file found in your distribution folder using the AWS Lambda console and jump to the [configuration step](#configure-lambda-and-cloudfront)
 
 ## Configure Lambda and CloudFront
 
 See [Manual Deployment](https://github.com/Widen/cloudfront-auth/wiki/Manual-Deployment) __*or*__ [AWS SAM Deployment](https://github.com/Widen/cloudfront-auth/wiki/AWS-SAM-Deployment)
-
-If deploying a generic package, you also need to follow the steps below in the `us-east-1` region. In these steps, replace `{name}` with the name of the Lambda authentication function you created and `{account_id}` with the AWS Account ID number.
-
-1. Modify the role on the Lambda authentication function to include a policy that:
-    * allows the action `secretsmanager:GetSecretValue` on resource `arn:aws:secretsmanager:us-east-1:{account_id}:secret:{name}/*`
-    * allows the action `ssm:GetParametersByPath` on resource `arn:aws:ssm:us-east-1:{account_id}:parameter/{name}`
-1. Execute `./build.sh rotate_key_pair`
-1. Create a Lambda rotation function with the following configuration:
-    * Function code: Use the `rotate_key_pair.zip` file found in the distributions folder
-    * Runtime: **Node.js 14.x** or later
-    * Handler: `index.handler`
-    * Timeout: 30 sec
-1. Modify the role on the Lambda rotation function to include a policy that:
-    * allows the action `secretsmanager:PutSecretValue` on resource `arn:aws:secretsmanager:us-east-1:{account_id}:secret:{name}/*`
-1. Create a secret in AWS Secrets Manager named `{name}/key-pair`
-1. Enable secret rotation on the secret and associate it with the Lambda rotation function
 
 ## Authorization Method Examples
 
@@ -199,9 +162,29 @@ Detailed instructions on testing your function can be found [in the Wiki](https:
 
 ## Build Requirements
 
-* [npm](https://www.npmjs.com/) ^5.6.0
-* [node](https://nodejs.org/en/) ^10.0
+* [npm](https://www.npmjs.com/) ^7.20.0
+* [node](https://nodejs.org/en/) ^14.0
 * [openssl](https://www.openssl.org)
+
+## Building Generic Packages
+
+If you need to build a generic package yourself, execute:
+
+```bash
+./build.sh package
+```
+
+The supported values of `package` are:
+
+* `okta_native` - builds a generic Lambda package for OKTA Native authentication
+* `rotate_key_pair` - builds a Lambda package for rotating the RSA keys in AWS Secrets Manager
+
+GitHub Actions automatically creates a new GitHub release when the repository owner pushes a tag that begins with `v`:
+
+```sh
+git tag -a -m "Target AWS Lambda Node.js 14.x runtime" v3.0.0
+git push origin v3.0.0
+```
 
 ## Contributing
 
