@@ -9,7 +9,7 @@ The Terraform modules for each identity provider are in the [modules](./modules)
 1. Call the module in your Terraform configuration. CloudFront uses the `us-east-1` region, so you must pass a `us-east-1` provider to the module.
 
     ```hcl
-    module "cloudfront_auth_okta_native" {
+    module "auth" {
       source = "github.com/iress/cloudfront-auth//infra/terraform/modules/okta_native"
 
       # Lambda function version to deploy (see the Releases page of this GitHub repository)
@@ -38,9 +38,8 @@ The Terraform modules for each identity provider are in the [modules](./modules)
         # ... other configuration ...
 
         lambda_function_association {
-          event_type   = "viewer-request"
-          lambda_arn   = module.cloudfront_auth_okta_native.auth_lambda_arn
-          include_body = false
+          event_type = "viewer-request"
+          lambda_arn = module.auth.auth_lambda_arn
         }
       }
     }
