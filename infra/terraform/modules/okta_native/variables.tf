@@ -58,3 +58,9 @@ variable "scope" {
   type        = string
   default     = "openid email"
 }
+
+variable "kms_key_arn" {
+  description = "kms key to encrypt secrets manager secret"
+  type        = string
+  default     = null
+}

@@ -30,3 +30,9 @@ variable "lambda_at_edge" {
   type        = bool
   default     = false
 }
+
+variable "kms_key_arn" {
+  description = "kms key to encrypt secrets manager secret"
+  type        = string
+  default     = null
+}

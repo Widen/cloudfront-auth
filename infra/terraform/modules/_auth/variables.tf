@@ -22,3 +22,9 @@ variable "key_pair_rotation_period_days" {
   description = "The number of days between automatic scheduled rotations of the key pair"
   type        = number
 }
+
+variable "kms_key_arn" {
+  description = "kms key to encrypt secrets manager secret"
+  type        = string
+  default     = null
+}
