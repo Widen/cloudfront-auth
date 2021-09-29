@@ -60,7 +60,7 @@ variable "scope" {
 }
 
 variable "kms_key_arn" {
-  description = "kms key to encrypt secrets manager secret"
+  description = "The ARN of the KMS key used to encrypt the key pair"
   type        = string
   default     = null
 }
