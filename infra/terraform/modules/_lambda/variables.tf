@@ -30,3 +30,9 @@ variable "lambda_at_edge" {
   type        = bool
   default     = false
 }
+
+variable "kms_key_arn" {
+  description = "The ARN of the KMS key used to encrypt the key pair"
+  type        = string
+  default     = null
+}
