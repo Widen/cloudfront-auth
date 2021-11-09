@@ -63,6 +63,25 @@ function mainProcess(event, context, callback) {
     config.TOKEN_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
   }
 
+  const actualHost = headers['host'][0].value;
+  const expectedHost = new URL(config.AUTH_REQUEST.redirect_uri).host;
+
+  if (actualHost !== expectedHost) {
+    const response = {
+      "status": "308",
+      "statusDescription": "Found",
+      "body": "Redirecting to expected domain",
+      "headers": {
+        "location" : [{
+          "key": "Location",
+          "value": 'https://' + new URL(config.AUTH_REQUEST.redirect_uri).host + request.uri + '?' + request.querystring
+        }]
+      },
+    };
+    callback(null, response);
+    return;
+  }
+
   if (request.uri.endsWith('/')) {
     var requestUrl = request.uri;
 
