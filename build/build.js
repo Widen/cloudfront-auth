@@ -414,6 +414,9 @@ function genericOktaConfiguration() {
   config.AUTH_REQUEST.response_type = 'code';
   config.AUTH_REQUEST.scope = '${scope}';
   config.AUTH_REQUEST.redirect_uri = 'https://${domain-name}${callback-path}';
+  if ('${idp}') {
+    config.AUTH_REQUEST.idp = '${idp}';
+  }
 
   config.TOKEN_REQUEST.client_id = '${client-id}';
   config.TOKEN_REQUEST.redirect_uri = 'https://${domain-name}${callback-path}';

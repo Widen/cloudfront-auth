@@ -2,8 +2,9 @@
     "AUTH_REQUEST": {
         "client_id": "${client-id}",
         "response_type": "code",
-        "scope": "openid email",
-        "redirect_uri": "https://${domain-name}${callback-path}"
+        "scope": "${scope}",
+        "redirect_uri": "https://${domain-name}${callback-path}",
+        "idp": "${idp}"
     },
     "TOKEN_REQUEST": {
         "client_id": "${client-id}",
