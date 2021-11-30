@@ -46,3 +46,10 @@ resource "aws_ssm_parameter" "scope" {
   value = var.scope
   tags  = var.tags
 }
+
+resource "aws_ssm_parameter" "idp" {
+  name  = "/${var.name}/idp"
+  type  = "String"
+  value = var.idp
+  tags  = var.tags
+}
