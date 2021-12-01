@@ -68,5 +68,5 @@ variable "kms_key_arn" {
 variable "idp" {
   description = "Identity provider to use if there's no Okta Session"
   type        = string
-  default     = ""
+  default     = " "
 }

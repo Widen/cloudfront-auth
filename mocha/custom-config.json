@@ -4,7 +4,7 @@
         "response_type": "code",
         "scope": "openid email",
         "redirect_uri": "http://my-website.com/_callback",
-        "idp": "abcdefghijklmnopqrst"
+        "idp": " "
     },
     "TOKEN_REQUEST": {
         "client_id": "0oa1imdxt88mdVZabcdefghijklmnopqrstod0h8",
