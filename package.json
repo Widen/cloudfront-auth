@@ -6,6 +6,9 @@
   "repository": "github:Widen/cloudfront-auth",
   "license": "ISC",
   "main": "index.js",
+  "engines": {
+    "node": ">=14"
+  },
   "scripts": {
     "test": "node tests/tests.js",
     "build": "node build/build.js",
