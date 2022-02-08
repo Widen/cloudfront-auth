@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "node-rsa": "^0.4.2",
     "prompt": "^1.0.0",
     "ramda": "^0.25.0",

@@ -5,19 +5,26 @@
   "main": "index.js",
   "scripts": {
     "test": "cd tests && npm install && cd .. && node tests/tests.js",
-    "build": "npm install && cd build && npm install && cd .. && node build/build.js"
+    "test-ci": "npm ci && mocha './mocha/*.js'",
+    "build": "npm install && cd build && npm install && cd .. && node build/build.js",
+    "build-ci": "npm ci --production && cd build && npm ci --production && cd .. && node build/build.js"
   },
   "author": "Widen Enterprises",
   "repository": "github:widen/cloudfront-auth",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "cookie": "^0.3.1",
-    "crypto": "^1.0.1",
+    "es6-dynamic-template": "^2.0.0",
     "jsonwebtoken": "^8.1.0",
     "jwk-to-pem": "^1.2.6",
     "nonce": "^1.0.4",
     "querystring": "^0.2.0",
     "url": "^0.11.0"
+  },
+  "devDependencies": {
+    "aws-sdk-mock": "^5.1.0",
+    "mocha": "^8.0.1",
+    "sinon": "^9.0.2"
   }
 }

@@ -13,3 +13,6 @@ tests/logs/*
 tests/config
 /distributions
 packaged.yaml
+.terraform*
+terraform.tfstate*
+/infra/terraform/modules/_lambda/packages/*

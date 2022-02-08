@@ -1,11 +1,11 @@
 const qs = require('querystring');
-const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const cookie = require('cookie');
 const jwkToPem = require('jwk-to-pem');
 const auth = require('./auth.js');
 const nonce = require('./nonce.js');
 const codeChallenge = require('./code-challenge.js');
+const cfg = require('./config.js');
 const axios = require('axios');
 var discoveryDocument;
 var jwks;
@@ -13,41 +13,48 @@ var config;
 
 exports.handler = (event, context, callback) => {
   if (typeof jwks == 'undefined' || typeof discoveryDocument == 'undefined' || typeof config == 'undefined') {
-    config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
-
-    // Get Discovery Document data
-    console.log("Get discovery document data");
-    axios.get(config.DISCOVERY_DOCUMENT)
-      .then(function(response) {
-        console.log(response);
-
-        // Get jwks from discovery document url
-        console.log("Get jwks from discovery document");
-        discoveryDocument = response.data;
-        if (discoveryDocument.hasOwnProperty('jwks_uri')) {
-
-          // Get public key and verify JWT
-          axios.get(discoveryDocument.jwks_uri)
-            .then(function(response) {
-              console.log(response);
-              jwks = response.data;
-
-              // Callback to main function
-              mainProcess(event, context, callback);
-            })
-            .catch(function(error) {
-              console.log("Internal server error: " + error.message);
-              internalServerError(callback);
-            });
-        } else {
-          console.log("Internal server error: Unable to find JWK in discovery document");
-          internalServerError(callback);
-        }
-      })
-      .catch(function(error) {
+    cfg.getConfig('config.json', context.functionName, function(error, result) {
+      if (error) {
         console.log("Internal server error: " + error.message);
         internalServerError(callback);
-      });
+      } else {
+        config = result;
+
+        // Get Discovery Document data
+        console.log("Get discovery document data");
+        axios.get(config.DISCOVERY_DOCUMENT)
+          .then(function(response) {
+            console.log(response);
+
+            // Get jwks from discovery document url
+            console.log("Get jwks from discovery document");
+            discoveryDocument = response.data;
+            if (discoveryDocument.hasOwnProperty('jwks_uri')) {
+
+              // Get public key and verify JWT
+              axios.get(discoveryDocument.jwks_uri)
+                .then(function(response) {
+                  console.log(response);
+                  jwks = response.data;
+
+                  // Callback to main function
+                  mainProcess(event, context, callback);
+                })
+                .catch(function(error) {
+                  console.log("Internal server error: " + error.message);
+                  internalServerError(callback);
+                });
+            } else {
+              console.log("Internal server error: Unable to find JWK in discovery document");
+              internalServerError(callback);
+            }
+          })
+          .catch(function(error) {
+            console.log("Internal server error: " + error.message);
+            internalServerError(callback);
+          });
+      }
+    });
   } else {
     mainProcess(event, context, callback);
   }
@@ -123,21 +130,19 @@ function mainProcess(event, context, callback) {
       .then(function(response) {
         console.log(response);
         const decodedData = jwt.decode(response.data.id_token, {complete: true});
-        console.log(decodedData);
+        const decodedAccessTokenData = jwt.decode(response.data.access_token, {complete: true});
+        console.log("Decoded id_token: ", decodedData);
+        console.log("Decoded access_token", decodedAccessTokenData);
         try {
           console.log("Searching for JWK from discovery document");
 
           // Search for correct JWK from discovery document and create PEM
-          var pem = "";
-          for (var i = 0; i < jwks.keys.length; i++) {
-            if (decodedData.header.kid === jwks.keys[i].kid) {
-              pem = jwkToPem(jwks.keys[i]);
-            }
-          }
-          console.log("Verifying JWT");
+          var pem = createPEM(decodedAccessTokenData.header.kid); //We are verifying the access token
 
-          // Verify the JWT, the payload email, and that the email ends with configured hosted domain
-          jwt.verify(response.data.id_token, pem, { algorithms: ['RS256'] }, function(err, decoded) {
+          console.log("Verifying JWT");
+          const access_token = response.data.access_token;
+          // Verify the access token JWT, the payload email, and that the email ends with configured hosted domain
+          jwt.verify(access_token, pem, { algorithms: ['RS256'] }, function(err, decoded) {
             if (err) {
               switch (err.name) {
                 case 'TokenExpiredError':
@@ -157,7 +162,7 @@ function mainProcess(event, context, callback) {
               // Validate nonce
               if ("cookie" in headers
                   && "NONCE" in cookie.parse(headers["cookie"][0].value)
-                  && nonce.validateNonce(decoded.nonce, cookie.parse(headers["cookie"][0].value).NONCE)) {
+                  && nonce.validateNonce(decodedData.payload.nonce, cookie.parse(headers["cookie"][0].value).NONCE)) {
                 console.log("Setting cookie and redirecting.");
 
                 // Once verified, create new JWT for this server
@@ -175,18 +180,11 @@ function mainProcess(event, context, callback) {
                     "set-cookie" : [
                       {
                         "key": "Set-Cookie",
-                        "value" : cookie.serialize('TOKEN', jwt.sign(
-                          { },
-                          config.PRIVATE_KEY.trim(),
-                          {
-                            "audience": headers.host[0].value,
-                            "subject": auth.getSubject(decodedData),
-                            "expiresIn": config.SESSION_DURATION,
-                            "algorithm": "RS256"
-                          } // Options
-                        ), {
+                        "value" : cookie.serialize('TOKEN', access_token, {
                           path: '/',
-                          maxAge: config.SESSION_DURATION
+                          httpOnly: true,
+                          secure: true,
+                          maxAge: parseInt(config.SESSION_DURATION)
                         })
                       },
                       {
@@ -217,9 +215,11 @@ function mainProcess(event, context, callback) {
   } else if ("cookie" in headers
               && "TOKEN" in cookie.parse(headers["cookie"][0].value)) {
     console.log("Request received with TOKEN cookie. Validating.");
-
+    const decodedToken = jwt.decode(cookie.parse(headers["cookie"][0].value).TOKEN, {complete: true});
+    // Search for correct JWK from discovery document and create PEM
+    var pem = createPEM(decodedToken.header.kid);
     // Verify the JWT, the payload email, and that the email ends with configured hosted domain
-    jwt.verify(cookie.parse(headers["cookie"][0].value).TOKEN, config.PUBLIC_KEY.trim(), { algorithms: ['RS256'] }, function(err, decoded) {
+    jwt.verify(cookie.parse(headers["cookie"][0].value).TOKEN, pem, { algorithms: ['RS256'] }, function(err, decoded) {
       if (err) {
         switch (err.name) {
           case 'TokenExpiredError':
@@ -242,6 +242,16 @@ function mainProcess(event, context, callback) {
   } else {
     console.log("Redirecting to OIDC provider.");
     redirect(request, headers, callback);
+  }
+
+  function createPEM(kid) {
+    var pem = "";
+    for (var i = 0; i < jwks.keys.length; i++) {
+      if (kid === jwks.keys[i].kid) {
+        pem = jwkToPem(jwks.keys[i]);
+      }
+    }
+    return pem;
   }
 }
 
