@@ -1,11 +1,4 @@
-function isAuthorized(
-  decoded,
-  request,
-  callback,
-  unauthorized,
-  internalServerError,
-  config
-) {
+function isAuthorized(_, request, callback) {
   callback(null, request)
 }
 

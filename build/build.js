@@ -57,49 +57,49 @@ prompt.get(
     }
     switch (result.method) {
       case '1':
-        if (R.pathOr('', ['AUTHN'], oldConfig) != 'GOOGLE') {
+        if (R.pathOr('', ['AUTHN'], oldConfig) !== 'GOOGLE') {
           oldConfig = undefined
         }
         config.AUTHN = 'GOOGLE'
         googleConfiguration()
         break
       case '2':
-        if (R.pathOr('', ['AUTHN'], oldConfig) != 'MICROSOFT') {
+        if (R.pathOr('', ['AUTHN'], oldConfig) !== 'MICROSOFT') {
           oldConfig = undefined
         }
         config.AUTHN = 'MICROSOFT'
         microsoftConfiguration()
         break
       case '3':
-        if (R.pathOr('', ['AUTHN'], oldConfig) != 'GITHUB') {
+        if (R.pathOr('', ['AUTHN'], oldConfig) !== 'GITHUB') {
           oldConfig = undefined
         }
         config.AUTHN = 'GITHUB'
         githubConfiguration()
         break
       case '4':
-        if (R.pathOr('', ['AUTHN'], oldConfig) != 'OKTA') {
+        if (R.pathOr('', ['AUTHN'], oldConfig) !== 'OKTA') {
           oldConfig = undefined
         }
         config.AUTHN = 'OKTA'
         oktaConfiguration()
         break
       case '5':
-        if (R.pathOr('', ['AUTHN'], oldConfig) != 'AUTH0') {
+        if (R.pathOr('', ['AUTHN'], oldConfig) !== 'AUTH0') {
           oldConfig = undefined
         }
         config.AUTHN = 'AUTH0'
         auth0Configuration()
         break
       case '6':
-        if (R.pathOr('', ['AUTHN'], oldConfig) != 'CENTRIFY') {
+        if (R.pathOr('', ['AUTHN'], oldConfig) !== 'CENTRIFY') {
           oldConfig = undefined
         }
         config.AUTHN = 'CENTRIFY'
         centrifyConfiguration()
         break
       case '7':
-        if (R.pathOr('', ['AUTHN'], oldConfig) != 'OKTA_NATIVE') {
+        if (R.pathOr('', ['AUTHN'], oldConfig) !== 'OKTA_NATIVE') {
           oldConfig = undefined
         }
         config.AUTHN = 'OKTA_NATIVE'
@@ -389,7 +389,7 @@ function googleConfiguration() {
                 },
               },
             },
-            function (err, result) {
+            function () {
               if (
                 !shell.test(
                   '-f',
@@ -481,13 +481,13 @@ function oktaConfiguration() {
     },
   }
 
-  if (config.AUTHN == 'OKTA') {
+  if (config.AUTHN === 'OKTA') {
     properties['CLIENT_SECRET'] = {
       message: colors.red('Client Secret'),
       required: true,
       default: R.pathOr('', ['TOKEN_REQUEST', 'client_secret'], oldConfig),
     }
-  } else if (config.AUTHN == 'OKTA_NATIVE') {
+  } else if (config.AUTHN === 'OKTA_NATIVE') {
     properties['PKCE_CODE_VERIFIER_LENGTH'] = {
       message: colors.red('Length of random PKCE code_verifier'),
       required: true,
@@ -499,7 +499,7 @@ function oktaConfiguration() {
   prompt.start()
   prompt.get(
     {
-      properties: properties,
+      properties,
     },
     function (err, result) {
       config.PRIVATE_KEY = fs.readFileSync(
@@ -603,7 +603,7 @@ function githubConfiguration() {
       axios
         .get('https://api.github.com/orgs/' + result.ORGANIZATION)
         .then(function (response) {
-          if (response.status == 200) {
+          if (response.status === 200) {
             config.PRIVATE_KEY = fs.readFileSync(
               'distributions/' + config.DISTRIBUTION + '/id_rsa',
               'utf8'

@@ -1,0 +1,8 @@
+{
+  "extends": ["widen"],
+  "rules": {
+    "sort/object-properties": "off",
+    "no-var": "off",
+    "no-prototype-builtins": "off"
+  }
+}

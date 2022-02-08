@@ -49,7 +49,7 @@ function isAuthorized(
             groupChecks++
             if (
               !response.data.error &&
-              response.data.isMember == true &&
+              response.data.isMember === true &&
               decoded.aud === request.headers.host[0].value &&
               decoded.sub.endsWith(config.HOSTED_DOMAIN)
             ) {
@@ -65,7 +65,7 @@ function isAuthorized(
               )
             }
           })
-          .catch(function (error) {
+          .catch(function () {
             groupChecks++
             if (groupChecks >= googleAuthz.cloudfront_authz_groups.length) {
               unauthorized(
@@ -78,7 +78,7 @@ function isAuthorized(
           })
       }
     })
-    .catch(function (error) {
+    .catch(function () {
       internalServerError(callback)
     })
 }

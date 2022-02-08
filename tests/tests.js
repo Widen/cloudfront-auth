@@ -11,7 +11,6 @@ var ngrok = require('ngrok')
 var dateFormat = require('dateformat')
 var AWS = require('aws-sdk')
 var logName = dateFormat(Date.now(), 'mm-dd-yyyy-hh:MM:ss')
-let server
 
 // Check for distribution argument
 const DISTRIBUTION = process.argv.slice(2)[0]
@@ -55,11 +54,11 @@ AWS.config.update({
 var lambda = new AWS.Lambda()
 
 // Start local server
-server = http.createServer()
+const server = http.createServer()
 server.on('request', function (req, res) {
   var querystring = qs.parse(url.parse(req.url).query)
   res.writeHead(200, { 'Content-Type': 'text/html' })
-  if (querystring.code != undefined) {
+  if (querystring.code !== undefined) {
     // Write simple HTML page with copy button for code
     var codeHtml =
       '<html>' +
@@ -109,7 +108,7 @@ switch (testConfig.auth) {
       function (err, url) {
         if (err) {
           console.log(err)
-          exit(1)
+          process.exit(1)
         }
         setupRedirect(url, testConfig.lambdaFunction)
       }
@@ -120,7 +119,7 @@ switch (testConfig.auth) {
     ngrok.connect(testConfig.port, function (err, url) {
       if (err) {
         console.log(err)
-        exit(1)
+        process.exit(1)
       }
       setupRedirect(url, testConfig.lambdaFunction)
     })
@@ -143,7 +142,7 @@ function setupRedirect(url, lambdaFunction) {
         },
       },
     },
-    function (err, result) {
+    function () {
       // Setup initial lambda request
       var params = {
         FunctionName: lambdaFunction,

@@ -2,13 +2,12 @@ const qs = require('querystring')
 const fs = require('fs')
 const jwt = require('jsonwebtoken')
 const cookie = require('cookie')
-const jwkToPem = require('jwk-to-pem')
 const auth = require('./auth.js')
 const axios = require('axios')
 var config
 
 exports.handler = (event, context, callback) => {
-  if (typeof config == 'undefined') {
+  if (typeof config === 'undefined') {
     config = JSON.parse(fs.readFileSync('config.json', 'utf8'))
   }
   mainProcess(event, context, callback)
@@ -75,7 +74,7 @@ function mainProcess(event, context, callback) {
                 .then(function (response) {
                   console.log(response)
                   /** Set cookie upon verified membership */
-                  if (response.status == 204) {
+                  if (response.status === 204) {
                     console.log('Setting cookie and redirecting.')
                     const nextLocation = {
                       status: '302',
@@ -224,7 +223,7 @@ function unauthorized(body, callback) {
   const response = {
     status: '401',
     statusDescription: 'Unauthorized',
-    body: body,
+    body,
     headers: {
       'set-cookie': [
         {
@@ -244,7 +243,7 @@ function internalServerError(body, callback) {
   const response = {
     status: '500',
     statusDescription: 'Internal Server Error',
-    body: body,
+    body,
   }
   callback(null, response)
 }

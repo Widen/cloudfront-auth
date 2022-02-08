@@ -8,5 +8,5 @@ module.exports.getNonce = function () {
 
 module.exports.validateNonce = function (nonce, hash) {
   const other = crypto.createHmac('sha256', nonce).digest('hex')
-  return other == hash
+  return other === hash
 }

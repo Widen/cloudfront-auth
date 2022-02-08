@@ -12,9 +12,9 @@ var config
 
 exports.handler = (event, context, callback) => {
   if (
-    typeof jwks == 'undefined' ||
-    typeof discoveryDocument == 'undefined' ||
-    typeof config == 'undefined'
+    typeof jwks === 'undefined' ||
+    typeof discoveryDocument === 'undefined' ||
+    typeof config === 'undefined'
   ) {
     config = JSON.parse(fs.readFileSync('config.json', 'utf8'))
 
@@ -390,7 +390,7 @@ function unauthorized(error, error_description, error_uri, callback) {
 }
 
 function internalServerError(callback) {
-  let page = `
+  const page = `
   <!DOCTYPE html>
   <html lang="en">
   <head>

@@ -9,6 +9,7 @@
   "scripts": {
     "test": "node tests/tests.js",
     "build": "node build/build.js",
+    "lint": "eslint .",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -22,9 +23,15 @@
     "url": "^0.11.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.17.2",
+    "@babel/eslint-parser": "^7.17.0",
     "aws-sdk": "^2.207.0",
     "axios": "^0.19.0",
     "dateformat": "^3.0.3",
+    "eslint": "^8.8.0",
+    "eslint-config-widen": "^0.4.0",
+    "eslint-plugin-sort": "^2.4.0",
+    "eslint-plugin-widen": "^0.1.1",
     "generate-password": "^1.4.1",
     "json-beautify": "^1.0.1",
     "ngrok": "^2.3.0",
