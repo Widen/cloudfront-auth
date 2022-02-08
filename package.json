@@ -2,14 +2,14 @@
   "name": "cloudfront-auth",
   "version": "1.0.0",
   "description": "An AWS Cloudfront Lambda@Edge function to authenticate requests using Google Apps, Microsoft, GitHub login, OKTA & Auth0",
+  "author": "Widen Enterprises",
+  "repository": "github:Widen/cloudfront-auth",
+  "license": "ISC",
   "main": "index.js",
   "scripts": {
-    "test": "cd tests && npm install && cd .. && node tests/tests.js",
-    "build": "npm install && cd build && npm install && cd .. && node build/build.js"
+    "test": "node tests/tests.js",
+    "build": "node build/build.js"
   },
-  "author": "Widen Enterprises",
-  "repository": "github:widen/cloudfront-auth",
-  "license": "ISC",
   "dependencies": {
     "axios": "^0.18.1",
     "cookie": "^0.3.1",
@@ -19,5 +19,17 @@
     "nonce": "^1.0.4",
     "querystring": "^0.2.0",
     "url": "^0.11.0"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.207.0",
+    "dateformat": "^3.0.3",
+    "generate-password": "^1.4.1",
+    "json-beautify": "^1.0.1",
+    "ngrok": "^2.3.0",
+    "opn": "^5.2.0",
+    "shelljs": "^0.8.1",
+    "axios": "^0.19.0",
+    "prompt": "^1.2.1",
+    "ramda": "^0.25.0"
   }
 }
