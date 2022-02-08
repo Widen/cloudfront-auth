@@ -1,10 +1,17 @@
-function isAuthorized(decoded, request, callback, unauthorized, internalServerError, config) {
-  callback(null, request);
+function isAuthorized(
+  decoded,
+  request,
+  callback,
+  unauthorized,
+  internalServerError,
+  config
+) {
+  callback(null, request)
 }
 
 function getSubject(decoded) {
-  return decoded.payload.unique_name;
+  return decoded.payload.unique_name
 }
 
-exports.isAuthorized = isAuthorized;
-exports.getSubject = getSubject;
+exports.isAuthorized = isAuthorized
+exports.getSubject = getSubject
