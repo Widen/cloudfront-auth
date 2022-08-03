@@ -1,4 +1,3 @@
-const qs = require('querystring');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const cookie = require('cookie');
@@ -57,7 +56,9 @@ function mainProcess(event, context, callback) {
   // Get request, request headers, and querystring dictionary
   const request = event.Records[0].cf.request;
   const headers = request.headers;
-  const queryDict = qs.parse(request.querystring);
+  const queryParams = new URLSearchParams(request.querystring);
+  const queryDict = Object.fromEntries(queryParams);
+
   if (event.Records[0].cf.config.hasOwnProperty('test')) {
     config.AUTH_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
     config.TOKEN_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
@@ -111,7 +112,7 @@ function mainProcess(event, context, callback) {
     config.TOKEN_REQUEST.code = queryDict.code;
 
     // Exchange code for authorization token
-    const postData = qs.stringify(config.TOKEN_REQUEST);
+    const postData = new URLSearchParams(config.TOKEN_REQUEST).toString();
     console.log("Requesting access token.");
     axios.post(discoveryDocument.token_endpoint, postData)
       .then(function(response) {
@@ -245,7 +246,7 @@ function redirect(request, headers, callback) {
   config.AUTH_REQUEST.state = request.uri;
 
   // Redirect to Authorization Server
-  var querystring = qs.stringify(config.AUTH_REQUEST);
+  var querystring = new URLSearchParams(config.AUTH_REQUEST).toString();
 
   const response = {
     "status": "302",
