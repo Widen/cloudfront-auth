@@ -51,13 +51,16 @@ function mainProcess(event, context, callback) {
                 internalServerError('Unable to find login', callback);
               }
               var username = response.data.login;
-              var orgsGet = 'https://api.github.com/orgs/' + config.ORGANIZATION + '/members/' + username;
+              var orgsGet = 'https://api.github.com/user/orgs';
               console.log("Checking ORG membership.");
               axios.get(orgsGet, { headers: {'Authorization': authorization} })
                 .then(function(response) {
                   console.log(response);
                   /** Set cookie upon verified membership */
-                  if (response.status == 204) {
+                  if (
+                    response.status == 200 &&
+                    response.data.filter((x) => x.login === config.ORGANIZATION).length === 1
+                  ) {
                     console.log("Setting cookie and redirecting.");
                     const nextLocation = {
                       "status": "302",
