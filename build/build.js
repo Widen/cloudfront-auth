@@ -5,9 +5,49 @@ const axios = require('axios');
 const colors = require('colors/safe');
 const url = require('url');
 const R = require('ramda');
+const parseArgs = require('minimist');
 
 var config = { AUTH_REQUEST: {}, TOKEN_REQUEST: {} };
 var oldConfig;
+
+// Transform env var names to neat command line arguments, e.g. JSON_EMAIL_LOOKUP => json-email-lookup
+const envParamToArg = v => v.toLowerCase().replace(/\_/g, '-')
+
+function prepareOverrides() {
+  // prompted overrides available as environment variables
+  const envParams = [
+      'TENANT',
+      'CLIENT_ID',
+      'CLIENT_SECRET',
+      'REDIRECT_URI',
+      'SESSION_DURATION',
+      'AUTHZ',
+      'JSON_USERNAME_LOOKUP',
+      'HD',
+      'JSON_EMAIL_LOOKUP',
+      'MOVE',
+      'SERVICE_ACCOUNT_EMAIL',
+      'PKCE_CODE_VERIFIER_LENGTH',
+      'ORGANIZATION',
+      'BASE_URL'
+  ]
+
+  const args = parseArgs(process.argv.slice(2), {
+    string: [
+      'distribution',
+      'method',
+      ...envParams.map(envParamToArg)
+    ]
+  });
+
+  // Combine environment variables and truthy command line arguments, args have precedence
+  return R.mergeRight(
+   R.pick(envParams, process.env),
+   R.reduce((acc, v) => args[envParamToArg(v)] ? R.assoc(v, args[envParamToArg(v)], acc) : acc, {}, ['method', 'distribution', ...envParams])
+  );
+}
+
+prompt.override = prepareOverrides();
 
 prompt.message = colors.blue(">");
 prompt.start();
