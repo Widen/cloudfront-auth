@@ -62,6 +62,36 @@ function mainProcess(event, context, callback) {
     config.AUTH_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
     config.TOKEN_REQUEST.redirect_uri = event.Records[0].cf.config.test + config.CALLBACK_PATH;
   }
+
+  const actualHost = headers['host'][0].value;
+  const expectedHost = new URL(config.AUTH_REQUEST.redirect_uri).host;
+
+  if (actualHost !== expectedHost) {
+    const response = {
+      "status": "308",
+      "statusDescription": "Found",
+      "body": "Redirecting to expected domain",
+      "headers": {
+        "location" : [{
+          "key": "Location",
+          "value": 'https://' + new URL(config.AUTH_REQUEST.redirect_uri).host + request.uri + '?' + request.querystring
+        }]
+      },
+    };
+    callback(null, response);
+    return;
+  }
+
+  if (request.uri.endsWith('/')) {
+    var requestUrl = request.uri;
+
+    // Match url ending with '/' and replace with /index.html
+    var redirectUrl = requestUrl.replace(/\/$/, '\/index.html');
+
+    // Replace the received URI with the URI that includes the index page
+    request.uri = redirectUrl;
+  }
+
   if (request.uri.startsWith(config.CALLBACK_PATH)) {
     console.log("Callback from OIDC provider received");
 
@@ -233,6 +263,14 @@ function mainProcess(event, context, callback) {
         auth.isAuthorized(decoded, request, callback, unauthorized, internalServerError, config);
       }
     });
+  } else if ("user-agent" in headers
+              && headers["user-agent"].length > 0
+              && headers["user-agent"][0].value
+              && headers["user-agent"][0].value.includes("Slackbot-LinkExpanding")) {
+    // Request from slackbot for link unfurl
+    // TODO only serve up partial page?
+    console.log("Authorizing Slackbot for link unfurl.");
+    auth.isAuthorized(null, request, callback, unauthorized, internalServerError, config);
   } else {
     console.log("Redirecting to OIDC provider.");
     redirect(request, headers, callback);
