@@ -35,7 +35,7 @@ function mainProcess(event, context, callback) {
     const postData = qs.stringify(config.TOKEN_REQUEST);
     console.log("Requesting access token.");
     axios.post(config.TOKEN_ENDPOINT, postData)
-      .then(function(response) {
+      .then(function (response) {
         console.log(response);
         var responseQueryString = qs.parse(response.data);
         /** Get authenticated user's login */
@@ -43,8 +43,8 @@ function mainProcess(event, context, callback) {
           internalServerError("Error while getting token: " + responseQueryString.error_description, callback);
         } else {
           const authorization = responseQueryString.token_type + ' ' + responseQueryString.access_token;
-          axios.get('https://api.github.com/user', { headers: {'Authorization': authorization}})
-            .then(function(response) {
+          axios.get('https://api.github.com/user', { headers: { 'Authorization': authorization } })
+            .then(function (response) {
               console.log(response);
               /** Check if authenticated user's login is a member of given org */
               if (!response.data.hasOwnProperty('login')) {
@@ -53,8 +53,8 @@ function mainProcess(event, context, callback) {
               var username = response.data.login;
               var orgsGet = 'https://api.github.com/orgs/' + config.ORGANIZATION + '/members/' + username;
               console.log("Checking ORG membership.");
-              axios.get(orgsGet, { headers: {'Authorization': authorization} })
-                .then(function(response) {
+              axios.get(orgsGet, { headers: { 'Authorization': authorization } })
+                .then(function (response) {
                   console.log(response);
                   /** Set cookie upon verified membership */
                   if (response.status == 204) {
@@ -64,14 +64,14 @@ function mainProcess(event, context, callback) {
                       "statusDescription": "Found",
                       "body": "ID token retrieved.",
                       "headers": {
-                        "location" : [{
+                        "location": [{
                           "key": "Location",
                           "value": event.Records[0].cf.config.hasOwnProperty('test') ? (config.AUTH_REQUEST.redirect_uri + queryDict.state) : queryDict.state
                         }],
-                        "set-cookie" : [{
+                        "set-cookie": [{
                           "key": "Set-Cookie",
-                          "value" : cookie.serialize('TOKEN', jwt.sign(
-                            { },
+                          "value": cookie.serialize('TOKEN', jwt.sign(
+                            {},
                             config.PRIVATE_KEY.trim(),
                             {
                               audience: headers.host[0].value,
@@ -79,7 +79,9 @@ function mainProcess(event, context, callback) {
                               expiresIn: config.SESSION_DURATION,
                               algorithm: 'RS256'
                             } // Options
-                          ))
+                          ), {
+                            SameSite: 'None; Secure'
+                          })
                         }],
                       },
                     };
@@ -89,22 +91,22 @@ function mainProcess(event, context, callback) {
                     unauthorized('Unauthorized. User ' + response.login + ' is not a member of required organization.', callback);
                   }
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                   internalServerError('Error checking membership: ' + error.message, callback);
                 });
             })
-            .catch(function(error) {
+            .catch(function (error) {
               internalServerError('Error getting user: ' + error.message, callback);
             });
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         internalServerError('Error getting token: ' + error.message, callback);
       });
   } else if ("cookie" in headers
-              && "TOKEN" in cookie.parse(headers["cookie"][0].value)) {
+    && "TOKEN" in cookie.parse(headers["cookie"][0].value)) {
     // Verify the JWT, the payload email, and that the email ends with configured hosted domain
-    jwt.verify(cookie.parse(headers["cookie"][0].value).TOKEN, config.PUBLIC_KEY.trim(), { algorithms: ['RS256'] }, function(err, decoded) {
+    jwt.verify(cookie.parse(headers["cookie"][0].value).TOKEN, config.PUBLIC_KEY.trim(), { algorithms: ['RS256'] }, function (err, decoded) {
       if (err) {
         switch (err.name) {
           case 'TokenExpiredError':
@@ -140,13 +142,13 @@ function redirect(request, headers, callback) {
     statusDescription: "Found",
     body: "Redirecting to OAuth2 provider",
     headers: {
-      "location" : [{
+      "location": [{
         "key": "Location",
         "value": config.AUTHORIZATION_ENDPOINT + '?' + querystring
       }],
-      "set-cookie" : [{
+      "set-cookie": [{
         "key": "Set-Cookie",
-        "value" : cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
+        "value": cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0), SameSite: 'None; Secure' })
       }],
     },
   };
@@ -159,10 +161,10 @@ function unauthorized(body, callback) {
     "statusDescription": "Unauthorized",
     "body": body,
     "headers": {
-       "set-cookie" : [{
-         "key": "Set-Cookie",
-         "value" : cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
-       }],
+      "set-cookie": [{
+        "key": "Set-Cookie",
+        "value": cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0), SameSite: 'None; Secure' })
+      }],
     },
   };
   callback(null, response);
