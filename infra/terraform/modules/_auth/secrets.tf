@@ -12,4 +12,9 @@ resource "aws_secretsmanager_secret_rotation" "key_pair" {
   rotation_rules {
     automatically_after_days = var.key_pair_rotation_period_days
   }
+  
+  # Secrets manager requires the access to the rotation lambda to be applied
+  depends_on = [
+    aws_lambda_permission.allow_secrets_manager
+  ]
 }
