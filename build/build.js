@@ -409,6 +409,7 @@ function genericOktaConfiguration() {
 
   config.BASE_URL = '${base-url}';
   config.CALLBACK_PATH = '${callback-path}';
+  config.LOGOUT_PATH = '${logout-path}';
 
   config.AUTH_REQUEST.client_id = '${client-id}';
   config.AUTH_REQUEST.response_type = 'code';

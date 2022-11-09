@@ -26,6 +26,13 @@ resource "aws_ssm_parameter" "callback_path" {
   tags  = var.tags
 }
 
+resource "aws_ssm_parameter" "logout_path" {
+  name  = "/${var.name}/logout-path"
+  type  = "String"
+  value = var.logout_path
+  tags  = var.tags
+}
+
 resource "aws_ssm_parameter" "session_duration" {
   name  = "/${var.name}/session-duration"
   type  = "String"

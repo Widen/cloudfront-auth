@@ -212,6 +212,39 @@ function mainProcess(event, context, callback) {
         console.log("Internal server error: " + error.message);
         internalServerError(callback);
       });
+  } else if (request.uri.startsWith(config.LOGOUT_PATH)) {
+    // handle logout by deleting the tokens in cookies
+    const response = {
+      "status": "200",
+      "statusDescription": "OK",
+      "body": "Cookies deleted",
+      "headers": {
+        "set-cookie" : [
+          {
+            "key": "Set-Cookie",
+            "value" : cookie.serialize('TOKEN', '', {
+              path: '/',
+              expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+            })
+          },
+          {
+            "key": "Set-Cookie",
+            "value" : cookie.serialize('CV', '', {
+              path: '/',
+              expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+            })
+          },
+          {
+            "key": "Set-Cookie",
+            "value" : cookie.serialize('NONCE', '', {
+              path: '/',
+              expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+            })
+          }
+        ],
+      },
+    };
+    callback(null, response);
   } else if ("cookie" in headers
               && "TOKEN" in cookie.parse(headers["cookie"][0].value)) {
     console.log("Request received with TOKEN cookie. Validating.");
