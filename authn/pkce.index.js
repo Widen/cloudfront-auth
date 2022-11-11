@@ -7,6 +7,7 @@ const nonce = require('./nonce.js');
 const codeChallenge = require('./code-challenge.js');
 const cfg = require('./config.js');
 const axios = require('axios');
+const url = require('url');
 var discoveryDocument;
 var jwks;
 var config;
@@ -213,6 +214,9 @@ function mainProcess(event, context, callback) {
         internalServerError(callback);
       });
   } else if (request.uri === config.LOGOUT_PATH) {
+    const authProviderUrl = url.parse(config.BASE_URL);
+    const authproviderOrigin = authProviderUrl.protocol + '//' + authProviderUrl.host;
+
     // handle logout by deleting the tokens in cookies and redirecting to auth provider
     const response = {
       "status": "302",
@@ -221,7 +225,7 @@ function mainProcess(event, context, callback) {
       "headers": {
         "location" : [{
           "key": "Location",
-          "value": discoveryDocument.issuer
+          "value": authproviderOrigin
         }],
         "set-cookie" : [
           {
