@@ -101,24 +101,6 @@ function mainProcess(event, context, callback) {
       .catch(function(error) {
         internalServerError('Error getting token: ' + error.message, callback);
       });
-  } else if (request.uri.startsWith(config.LOGOUT_PATH)) {
-    // handle logout by deleting the tokens        
-    const response = {
-      "status": "200",
-      "statusDescription": "OK",
-      "headers": {
-        "set-cookie" : [
-          {
-            "key": "Set-Cookie",
-            "value" : cookie.serialize('TOKEN', '', {
-              path: '/',
-              expires: new Date(1970, 1, 1, 0, 0, 0, 0)
-            })
-          }
-        ],
-      },
-    };
-    callback(null, response);
   } else if ("cookie" in headers
               && "TOKEN" in cookie.parse(headers["cookie"][0].value)) {
     // Verify the JWT, the payload email, and that the email ends with configured hosted domain

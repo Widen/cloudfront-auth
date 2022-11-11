@@ -208,12 +208,17 @@ function mainProcess(event, context, callback) {
         console.log("Internal server error: " + error.message);
         internalServerError(callback);
       });
-  } else if (request.uri.startsWith(config.LOGOUT_PATH)) {
-    // Handle logout but unsetting all cookies
+  } else if (request.uri === config.LOGOUT_PATH) {
+    // handle logout by deleting the tokens in cookies and redirecting to auth provider
     const response = {
-      "status": "200",
-      "statusDescription": "OK",
+      "status": "302",
+      "statusDescription": "Found",
+      "body": "Logged out. Redirecting to OIDC provider",
       "headers": {
+        "location" : [{
+          "key": "Location",
+          "value": discoveryDocument.issuer
+        }],
         "set-cookie" : [
           {
             "key": "Set-Cookie",
