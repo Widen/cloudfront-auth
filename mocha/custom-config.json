@@ -19,6 +19,7 @@
     "SESSION_DURATION": 7200,
     "BASE_URL": "http://my-org.okta.com",
     "CALLBACK_PATH": "/_callback",
+    "LOGOUT_PATH": "/_logout",
     "PKCE_CODE_VERIFIER_LENGTH": "96",
     "AUTHZ": "OKTA"
 }

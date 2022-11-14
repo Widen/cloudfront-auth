@@ -6,6 +6,7 @@ const jwkToPem = require('jwk-to-pem');
 const auth = require('./auth.js');
 const nonce = require('./nonce.js');
 const axios = require('axios');
+const url = require('url');
 var discoveryDocument;
 var jwks;
 var config;
@@ -208,6 +209,46 @@ function mainProcess(event, context, callback) {
         console.log("Internal server error: " + error.message);
         internalServerError(callback);
       });
+  } else if (request.uri === config.LOGOUT_PATH) {
+    const authProviderUrl = url.parse(config.BASE_URL);
+    const authproviderOrigin = authProviderUrl.protocol + '//' + authProviderUrl.host;
+
+    // handle logout by deleting the tokens in cookies and redirecting to auth provider
+    const response = {
+      "status": "302",
+      "statusDescription": "Found",
+      "body": "Logged out. Redirecting to OIDC provider",
+      "headers": {
+        "location" : [{
+          "key": "Location",
+          "value": authproviderOrigin
+        }],
+        "set-cookie" : [
+          {
+            "key": "Set-Cookie",
+            "value" : cookie.serialize('TOKEN', '', {
+              path: '/',
+              expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+            })
+          },
+          {
+            "key": "Set-Cookie",
+            "value" : cookie.serialize('CV', '', {
+              path: '/',
+              expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+            })
+          },
+          {
+            "key": "Set-Cookie",
+            "value" : cookie.serialize('NONCE', '', {
+              path: '/',
+              expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+            })
+          }
+        ],
+      },
+    };
+    callback(null, response);
   } else if ("cookie" in headers
               && "TOKEN" in cookie.parse(headers["cookie"][0].value)) {
     console.log("Request received with TOKEN cookie. Validating.");

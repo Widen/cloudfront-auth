@@ -35,6 +35,12 @@ variable "callback_path" {
   default     = "/_callback"
 }
 
+variable "logout_path" {
+  description = "The path of the URI where Okta will send OAuth responses"
+  type        = string
+  default     = "/_logout2"
+}
+
 variable "session_duration" {
   description = "The number of hours that the JWT is valid for"
   type        = number

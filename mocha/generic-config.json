@@ -19,6 +19,7 @@
     "SESSION_DURATION": "${session-duration}",
     "BASE_URL": "${base-url}",
     "CALLBACK_PATH": "${callback-path}",
+    "LOGOUT_PATH": "${logout-path}",
     "PKCE_CODE_VERIFIER_LENGTH": "${pkce-code-verifier-length}",
     "AUTHZ": "OKTA"
 }
