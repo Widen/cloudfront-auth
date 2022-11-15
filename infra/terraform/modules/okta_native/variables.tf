@@ -38,7 +38,7 @@ variable "callback_path" {
 variable "logout_path" {
   description = "The path of the URI where Okta will send OAuth responses"
   type        = string
-  default     = "/_logout2"
+  default     = "/_logout"
 }
 
 variable "session_duration" {
