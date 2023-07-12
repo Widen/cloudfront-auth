@@ -14,7 +14,9 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 data "aws_iam_policy_document" "execution" {
-  override_json = var.iam_policy_override_json
+  override_policy_documents = var.iam_policy_override_json == null ? [] : [
+    var.iam_policy_override_json
+  ]
 
   statement {
     sid = "logs"
