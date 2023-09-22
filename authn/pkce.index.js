@@ -328,14 +328,16 @@ function redirect(request, headers, callback) {
           "key": "Set-Cookie",
           "value" : cookie.serialize('NONCE', n[1], {
             path: '/',
-            httpOnly: true
+            httpOnly: true,
+            secure: true
           })
         },
         {
           "key": "Set-Cookie",
           "value" : cookie.serialize('CV', challenge[0], {
             path: '/',
-            httpOnly: true
+            httpOnly: true,
+            secure: true
           })
         }
       ],
