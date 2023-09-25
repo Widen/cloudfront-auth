@@ -13,7 +13,7 @@ The Terraform modules for each identity provider are in the [modules](./modules)
       source = "github.com/iress/cloudfront-auth//infra/terraform/modules/okta_native"
 
       # Lambda function version to deploy (see the Releases page of this GitHub repository)
-      release_version = "v3.0.0"
+      release_version = "v4.0.0"
 
       name        = "my-website-auth"
       org_url     = "https://my-org.okta.com/oauth2/default"
