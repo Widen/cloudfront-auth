@@ -7,6 +7,8 @@ const auth = require('./auth.js');
 const nonce = require('./nonce.js');
 const axios = require('axios');
 const url = require('url');
+const entities = require('entities');
+
 var discoveryDocument;
 var jwks;
 var config;
@@ -335,9 +337,9 @@ function unauthorized(error, error_description, error_uri, callback) {
   </html>
   `;
 
-  page = page.replace(/%error%/g, encodeURI(error).replace(/%20/g,' '));
-  page = page.replace(/%error_description%/g, encodeURI(error_description).replace(/%20/g,' '));
-  page = page.replace(/%error_uri%/g, encodeURI(error_uri));
+  page = page.replace(/%error%/g, entities.encodeHTML(error));
+  page = page.replace(/%error_description%/g, entities.encodeHTML(error_description));
+  page = page.replace(/%error_uri%/g, entities.encodeHTML(error_uri));
 
   // Unauthorized access attempt. Reset token and nonce cookies
   const response = {
