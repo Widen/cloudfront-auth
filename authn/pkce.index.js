@@ -330,7 +330,8 @@ function redirect(request, headers, callback) {
           "value" : cookie.serialize('NONCE', n[1], {
             path: '/',
             httpOnly: true,
-            sameSite: 'strict'
+            sameSite: 'strict',
+            secure: true
           })
         },
         {
@@ -338,7 +339,8 @@ function redirect(request, headers, callback) {
           "value" : cookie.serialize('CV', challenge[0], {
             path: '/',
             httpOnly: true,
-            sameSite: 'strict'
+            sameSite: 'strict',
+            secure: true
           })
         }
       ],
