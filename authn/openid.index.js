@@ -181,7 +181,9 @@ function mainProcess(event, context, callback) {
                           } // Options
                         ), {
                           path: '/',
-                          maxAge: config.SESSION_DURATION
+                          maxAge: config.SESSION_DURATION,
+                          sameSite: 'strict',
+                          secure: true
                         })
                       },
                       {
@@ -309,7 +311,9 @@ function redirect(request, headers, callback) {
           "key": "Set-Cookie",
           "value" : cookie.serialize('NONCE', n[1], {
             path: '/',
-            httpOnly: true
+            httpOnly: true,
+            sameSite: 'strict',
+            secure: true
           })
         }
       ],
