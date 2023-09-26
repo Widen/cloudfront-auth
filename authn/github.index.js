@@ -70,16 +70,23 @@ function mainProcess(event, context, callback) {
                         }],
                         "set-cookie" : [{
                           "key": "Set-Cookie",
-                          "value" : cookie.serialize('TOKEN', jwt.sign(
-                            { },
-                            config.PRIVATE_KEY.trim(),
+                          "value" : cookie.serialize(
+                            'TOKEN',
+                            jwt.sign(
+                              { },
+                              config.PRIVATE_KEY.trim(),
+                              {
+                                audience: headers.host[0].value,
+                                subject: auth.getSubject(username),
+                                expiresIn: config.SESSION_DURATION,
+                                algorithm: 'RS256'
+                              } // Options
+                            ),
                             {
-                              audience: headers.host[0].value,
-                              subject: auth.getSubject(username),
-                              expiresIn: config.SESSION_DURATION,
-                              algorithm: 'RS256'
-                            } // Options
-                          ))
+                              sameSite: 'strict',
+                              secure: true
+                            }
+                          )
                         }],
                       },
                     };
