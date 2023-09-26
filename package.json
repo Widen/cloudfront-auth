@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "An AWS Cloudfront Lambda@Edge function to authenticate requests using Google Apps, Microsoft, GitHub login, OKTA & Auth0",
   "main": "index.js",
+  "engines": {
+    "node": ">=14"
+  },
   "scripts": {
     "test": "cd tests && npm install && cd .. && node tests/tests.js",
     "test-ci": "npm ci && mocha './mocha/*.js'",
