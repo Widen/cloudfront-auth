@@ -369,7 +369,7 @@ function unauthorized(error, error_description, error_uri, callback) {
 </head>
 <body>
     <div class="cover"><h1>%error% <small>Error 401</small></h1><p class="lead">%error_description%</p><p>%error_uri%</p></div>
-    <footer><p><a href="https://github.com/widen/cloudfront-auth">cloudfront-auth</a></p></footer>
+    <footer><p><a href="https://github.com/iress/cloudfront-auth">cloudfront-auth</a></p></footer>
 </body>
 </html>`;
 
@@ -419,7 +419,7 @@ function internalServerError(callback) {
 </head>
 <body>
     <div class="cover"><h1>Internal Server Error <small>Error 500</small></h1></div>
-    <footer><p><a href="https://github.com/widen/cloudfront-auth">cloudfront-auth</a></p></footer>
+    <footer><p><a href="https://github.com/iress/cloudfront-auth">cloudfront-auth</a></p></footer>
 </body>
 </html>`;
 
