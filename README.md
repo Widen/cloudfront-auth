@@ -163,7 +163,7 @@ Detailed instructions on testing your function can be found [in the Wiki](https:
 ## Build Requirements
 
 * [npm](https://www.npmjs.com/) ^7.20.0
-* [node](https://nodejs.org/en/) ^18.0
+* [node](https://nodejs.org/en/) ^16.0
 * [openssl](https://www.openssl.org)
 
 ## Building Generic Packages
