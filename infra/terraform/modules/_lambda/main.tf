@@ -20,7 +20,7 @@ resource "aws_lambda_function" "main" {
   role             = aws_iam_role.lambda.arn
   handler          = "index.handler"
   source_code_hash = base64sha256(var.package_url)
-  runtime          = "nodejs18.x"
+  runtime          = "nodejs16.x"
   timeout          = var.timeout
   publish          = var.lambda_at_edge
   tags             = var.tags
