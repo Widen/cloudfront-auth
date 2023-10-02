@@ -64,22 +64,33 @@ function mainProcess(event, context, callback) {
                       "statusDescription": "Found",
                       "body": "ID token retrieved.",
                       "headers": {
+                        "content-type": [{
+                          "key": "Content-Type",
+                          "value": "text/plain;charset=UTF-8"
+                        }],
                         "location" : [{
                           "key": "Location",
                           "value": event.Records[0].cf.config.hasOwnProperty('test') ? (config.AUTH_REQUEST.redirect_uri + queryDict.state) : queryDict.state
                         }],
                         "set-cookie" : [{
                           "key": "Set-Cookie",
-                          "value" : cookie.serialize('TOKEN', jwt.sign(
-                            { },
-                            config.PRIVATE_KEY.trim(),
+                          "value" : cookie.serialize(
+                            'TOKEN',
+                            jwt.sign(
+                              { },
+                              config.PRIVATE_KEY.trim(),
+                              {
+                                audience: headers.host[0].value,
+                                subject: auth.getSubject(username),
+                                expiresIn: config.SESSION_DURATION,
+                                algorithm: 'RS256'
+                              } // Options
+                            ),
                             {
-                              audience: headers.host[0].value,
-                              subject: auth.getSubject(username),
-                              expiresIn: config.SESSION_DURATION,
-                              algorithm: 'RS256'
-                            } // Options
-                          ))
+                              sameSite: 'strict',
+                              secure: true
+                            }
+                          )
                         }],
                       },
                     };
@@ -140,6 +151,10 @@ function redirect(request, headers, callback) {
     statusDescription: "Found",
     body: "Redirecting to OAuth2 provider",
     headers: {
+      "content-type": [{
+        "key": "Content-Type",
+        "value": "text/plain;charset=UTF-8"
+      }],
       "location" : [{
         "key": "Location",
         "value": config.AUTHORIZATION_ENDPOINT + '?' + querystring
@@ -159,10 +174,14 @@ function unauthorized(body, callback) {
     "statusDescription": "Unauthorized",
     "body": body,
     "headers": {
-       "set-cookie" : [{
-         "key": "Set-Cookie",
-         "value" : cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
-       }],
+      "content-type": [{
+        "key": "Content-Type",
+        "value": "text/plain;charset=UTF-8"
+      }],
+      "set-cookie" : [{
+        "key": "Set-Cookie",
+        "value" : cookie.serialize('TOKEN', '', { path: '/', expires: new Date(1970, 1, 1, 0, 0, 0, 0) })
+      }],
     },
   };
   callback(null, response);
@@ -173,6 +192,12 @@ function internalServerError(body, callback) {
     "status": "500",
     "statusDescription": "Internal Server Error",
     "body": body,
+    "headers": {
+      "content-type": [{
+        "key": "Content-Type",
+        "value": "text/plain;charset=UTF-8"
+      }]
+    }
   };
   callback(null, response);
 }

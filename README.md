@@ -163,7 +163,7 @@ Detailed instructions on testing your function can be found [in the Wiki](https:
 ## Build Requirements
 
 * [npm](https://www.npmjs.com/) ^7.20.0
-* [node](https://nodejs.org/en/) ^14.0
+* [node](https://nodejs.org/en/) ^18.0
 * [openssl](https://www.openssl.org)
 
 ## Building Generic Packages
@@ -179,7 +179,9 @@ The supported values of `package` are:
 * `okta_native` - builds a generic Lambda package for OKTA Native authentication
 * `rotate_key_pair` - builds a Lambda package for rotating the RSA keys in AWS Secrets Manager
 
-GitHub Actions automatically creates a new GitHub release when the repository owner pushes a tag that begins with `v`:
+GitHub Actions automatically creates a new GitHub release when the repository owner pushes a tag that begins with `v`.
+
+e.g.
 
 ```sh
 git tag -a -m "Target AWS Lambda Node.js 14.x runtime" v3.0.0
