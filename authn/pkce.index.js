@@ -195,7 +195,9 @@ function mainProcess(event, context, callback) {
                         "key": "Set-Cookie",
                         "value" : cookie.serialize('NONCE', '', {
                           path: '/',
-                          expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+                          expires: new Date(1970, 1, 1, 0, 0, 0, 0),
+                          sameSite: 'lax',
+                          secure: true
                         })
                       }
                     ],
@@ -239,21 +241,27 @@ function mainProcess(event, context, callback) {
             "key": "Set-Cookie",
             "value" : cookie.serialize('TOKEN', '', {
               path: '/',
-              expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+              expires: new Date(1970, 1, 1, 0, 0, 0, 0),
+              sameSite: 'strict',
+              secure: true
             })
           },
           {
             "key": "Set-Cookie",
             "value" : cookie.serialize('CV', '', {
               path: '/',
-              expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+              expires: new Date(1970, 1, 1, 0, 0, 0, 0),
+              sameSite: 'lax',
+              secure: true
             })
           },
           {
             "key": "Set-Cookie",
             "value" : cookie.serialize('NONCE', '', {
               path: '/',
-              expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+              expires: new Date(1970, 1, 1, 0, 0, 0, 0),
+              sameSite: 'lax',
+              secure: true
             })
           }
         ],
@@ -332,7 +340,9 @@ function redirect(request, headers, callback) {
           "key": "Set-Cookie",
           "value" : cookie.serialize('TOKEN', '', {
             path: '/',
-            expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+            expires: new Date(1970, 1, 1, 0, 0, 0, 0),
+            sameSite: 'strict',
+            secure: true
           })
         },
         {
@@ -340,7 +350,7 @@ function redirect(request, headers, callback) {
           "value" : cookie.serialize('NONCE', n[1], {
             path: '/',
             httpOnly: true,
-            sameSite: 'strict',
+            sameSite: 'lax',
             secure: true
           })
         },
@@ -349,7 +359,7 @@ function redirect(request, headers, callback) {
           "value" : cookie.serialize('CV', challenge[0], {
             path: '/',
             httpOnly: true,
-            sameSite: 'strict',
+            sameSite: 'lax',
             secure: true
           })
         }
@@ -394,14 +404,18 @@ function unauthorized(error, error_description, error_uri, callback) {
           "key": "Set-Cookie",
           "value" : cookie.serialize('TOKEN', '', {
             path: '/',
-            expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+            expires: new Date(1970, 1, 1, 0, 0, 0, 0),
+            sameSite: 'strict',
+            secure: true
           })
         },
         {
           "key": "Set-Cookie",
           "value" : cookie.serialize('NONCE', '', {
             path: '/',
-            expires: new Date(1970, 1, 1, 0, 0, 0, 0)
+            expires: new Date(1970, 1, 1, 0, 0, 0, 0),
+            sameSite: 'lax',
+            secure: true
           })
         }
       ],
