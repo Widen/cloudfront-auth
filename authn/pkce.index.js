@@ -187,7 +187,7 @@ function mainProcess(event, context, callback) {
                           path: '/',
                           httpOnly: true,
                           secure: true,
-                          sameSite: 'strict',
+                          sameSite: 'lax',
                           maxAge: parseInt(config.SESSION_DURATION)
                         })
                       },
@@ -242,7 +242,7 @@ function mainProcess(event, context, callback) {
             "value" : cookie.serialize('TOKEN', '', {
               path: '/',
               expires: new Date(1970, 1, 1, 0, 0, 0, 0),
-              sameSite: 'strict',
+              sameSite: 'lax',
               secure: true
             })
           },
@@ -341,7 +341,7 @@ function redirect(request, headers, callback) {
           "value" : cookie.serialize('TOKEN', '', {
             path: '/',
             expires: new Date(1970, 1, 1, 0, 0, 0, 0),
-            sameSite: 'strict',
+            sameSite: 'lax',
             secure: true
           })
         },
@@ -405,7 +405,7 @@ function unauthorized(error, error_description, error_uri, callback) {
           "value" : cookie.serialize('TOKEN', '', {
             path: '/',
             expires: new Date(1970, 1, 1, 0, 0, 0, 0),
-            sameSite: 'strict',
+            sameSite: 'lax',
             secure: true
           })
         },
